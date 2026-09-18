@@ -518,7 +518,7 @@ def main():
         'num_layers': 2,
         'dropout': 0.3,
         'num_classes': num_classes,
-        'max_len': MAX_LEN,
+        'max_len': MAX_SEQ_LEN,
         'test_metrics': {
             'accuracy': test_acc,
             'macro_f1': macro_f1,
