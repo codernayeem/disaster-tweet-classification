@@ -22,6 +22,7 @@ from sklearn.metrics import (
     precision_recall_fscore_support,
 )
 from sklearn.preprocessing import LabelEncoder
+import joblib
 
 
 # --------------------------------------------------------------------------
@@ -301,7 +302,27 @@ def main():
     )
     print(f"[+] Saved 20 incorrect prediction samples to: {incorrect_file}")
 
-    # 13. Save Metrics Summary CSV
+    # 13. Save Trained Model Checkpoint (joblib)
+    model_checkpoint_path = out_dir / "model.joblib"
+    checkpoint_payload = {
+        'model_name': 'Model 1: TF-IDF + Balanced Logistic Regression',
+        'classifier': clf,
+        'vectorizer': tfidf,
+        'label_encoder': label_encoder,
+        'class_names': class_names,
+        'test_metrics': {
+            'accuracy': test_acc,
+            'macro_f1': macro_f1,
+            'micro_f1': micro_f1,
+            'weighted_f1': weighted_f1,
+            'macro_precision': macro_p,
+            'macro_recall': macro_r,
+        }
+    }
+    joblib.dump(checkpoint_payload, model_checkpoint_path)
+    print(f"[+] Saved Model 1 checkpoint to: {model_checkpoint_path}")
+
+    # 14. Save Metrics Summary CSV
     metrics_df = pd.DataFrame([{
         'Model': 'TF-IDF + Logistic Regression',
         'Accuracy': test_acc,

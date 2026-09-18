@@ -37,15 +37,59 @@ if torch.cuda.is_available():
     torch.cuda.manual_seed_all(SEED)
 
 
+# --------------------------------------------------------------------------
+# Contraction, Slang & Emoji Dictionaries
+# --------------------------------------------------------------------------
+CONTRACTIONS = {
+    "can't": "cannot", "won't": "will not", "n't": " not", "'re": " are",
+    "'s": " is", "'d": " would", "'ll": " will", "'t": " not", "'ve": " have",
+    "'m": " am", "i'm": "i am", "we're": "we are", "they're": "they are",
+    "it's": "it is", "there's": "there is", "that's": "that is", "what's": "what is",
+    "here's": "here is", "let's": "let us", "who's": "who is", "how's": "how is"
+}
+
+DISASTER_SLANG = {
+    r"\bpls\b": "please", r"\bplz\b": "please", r"\bthx\b": "thanks",
+    r"\bu\b": "you", r"\bur\b": "your", r"\br\b": "are",
+    r"\bw/\b": "with", r"\bw/o\b": "without", r"\bb4\b": "before",
+    r"\bmsg\b": "message", r"\binfo\b": "information", r"\bemerg\b": "emergency",
+    r"\bevac\b": "evacuation", r"\bevacs\b": "evacuations", r"\bvicts\b": "victims",
+    r"\bgov\b": "government", r"\bdept\b": "department", r"\bvol\b": "volunteer"
+}
+
+EMOJI_TRANSLATIONS = {
+    "🙏": " prayer support ", "💔": " heartbreak grief ", "❤️": " love sympathy ",
+    "🚨": " emergency warning alert ", "⚠️": " danger warning caution ",
+    "🔥": " fire wildfire disaster ", "🌊": " flood tsunami water surge ",
+    "🌧️": " rain storm hurricane ", "🌪️": " tornado storm ", "⚡": " storm lightning ",
+    "😢": " crying sorrow sadness ", "😭": " weeping tragedy ", "🕯️": " mourning memorial ",
+    "🆘": " urgent help request emergency ", "🏠": " shelter home house ", "🏥": " hospital medical clinic "
+}
+
+
+def split_camel_case(text: str) -> str:
+    """Splits CamelCase words in hashtags."""
+    return re.sub(r'([a-z])([A-Z])', r'\1 \2', text)
+
+
 def clean_tweet_text(text: str) -> str:
-    """Cleans raw tweet text."""
+    """Comprehensive disaster tweet cleaner."""
     if not isinstance(text, str):
         return ""
     text = html.unescape(text)
+    for em, rep in EMOJI_TRANSLATIONS.items():
+        text = text.replace(em, rep)
     text = re.sub(r'https?://\S+|www\.\S+', ' ', text)
     text = re.sub(r'@\w+', ' ', text)
-    text = re.sub(r'#(\w+)', r'\1', text)
+    text = re.sub(r'#(\w+)', lambda m: split_camel_case(m.group(1)), text)
+    text = text.lower()
+    for c, exp in CONTRACTIONS.items():
+        text = text.replace(c, exp)
+    for pattern, rep in DISASTER_SLANG.items():
+        text = re.sub(pattern, rep, text, flags=re.IGNORECASE)
+    text = re.sub(r'(.)\1{2,}', r'\1\1', text)
     text = re.sub(r'\brt\b', ' ', text, flags=re.IGNORECASE)
+    text = text.replace('"', '"').replace('"', '"').replace('’', "'").replace('‘', "'")
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
@@ -396,7 +440,31 @@ def main():
     )
     print(f"[+] Saved 20 incorrect prediction samples to: {incorrect_file}")
 
-    # 15. Save Metrics Summary CSV
+    # 15. Save Trained Model Checkpoint (torch.save)
+    model_checkpoint_path = out_dir / "model.pt"
+    torch.save({
+        'model_name': 'Model 2: Word2Vec + BiRNN with Attention Pooling',
+        'model_state_dict': model.state_dict(),
+        'word2idx': word2idx,
+        'embedding_matrix': embedding_matrix,
+        'class_names': class_names,
+        'hidden_dim': 128,
+        'num_layers': 2,
+        'dropout': 0.3,
+        'num_classes': num_classes,
+        'max_len': MAX_LEN,
+        'test_metrics': {
+            'accuracy': test_acc,
+            'macro_f1': macro_f1,
+            'micro_f1': micro_f1,
+            'weighted_f1': weighted_f1,
+            'macro_precision': macro_p,
+            'macro_recall': macro_r,
+        }
+    }, model_checkpoint_path)
+    print(f"[+] Saved Model 2 checkpoint to: {model_checkpoint_path}")
+
+    # 16. Save Metrics Summary CSV
     metrics_df = pd.DataFrame([{
         'Model': 'Word2Vec + BiRNN',
         'Accuracy': test_acc,
