@@ -285,6 +285,70 @@ def main():
         dropout=0.3
     )
 
+    # 8. Train Model with Early Stopping & Class Weighting
+    def train_torch_model(model, train_loader, val_loader, class_weights, max_epochs=15, patience=3, lr=1.5e-3, model_name="Model"):
+        model = model.to(device)
+        criterion = nn.CrossEntropyLoss(weight=class_weights)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=1)
+
+        best_val_macro_f1 = 0.0
+        best_epoch = 0
+        best_state_dict = None
+        patience_counter = 0
+
+        print(f"\n[+] Training {model_name} on {device} (Max Epochs={max_epochs}, Early Stopping Patience={patience})...")
+        for epoch in range(1, max_epochs + 1):
+            epoch_start = time.time()
+            model.train()
+            total_loss = 0.0
+            for seqs, labels in train_loader:
+                seqs, labels = seqs.to(device), labels.to(device)
+                optimizer.zero_grad()
+                logits = model(seqs)
+                loss = criterion(logits, labels)
+                loss.backward()
+                nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+                optimizer.step()
+                total_loss += loss.item()
+
+            # Validation
+            model.eval()
+            val_preds, val_targets = [], []
+            with torch.no_grad():
+                for seqs, labels in val_loader:
+                    seqs = seqs.to(device)
+                    logits = model(seqs)
+                    preds = torch.argmax(logits, dim=-1).cpu().numpy()
+                    val_preds.extend(preds)
+                    val_targets.extend(labels.numpy())
+
+            _, _, val_macro_f1, _ = precision_recall_fscore_support(val_targets, val_preds, average='macro', zero_division=0)
+            scheduler.step(val_macro_f1)
+            epoch_sec = time.time() - epoch_start
+            avg_train_loss = total_loss / len(train_loader)
+
+            if val_macro_f1 > (best_val_macro_f1 + 0.001):
+                best_val_macro_f1 = val_macro_f1
+                best_epoch = epoch
+                best_state_dict = model.state_dict().copy()
+                patience_counter = 0
+                improved_flag = " [NEW BEST]"
+            else:
+                patience_counter += 1
+                improved_flag = f" (Patience: {patience_counter}/{patience})"
+
+            print(f"  Epoch {epoch:02d}/{max_epochs:02d} | Loss: {avg_train_loss:.4f} | Val Macro F1: {val_macro_f1*100:.2f}% | ({epoch_sec:.1f}s){improved_flag}")
+
+            if patience_counter >= patience:
+                print(f"\n[!] Early stopping triggered at Epoch {epoch}! No improvement for {patience} consecutive epochs.")
+                break
+
+        if best_state_dict is not None:
+            model.load_state_dict(best_state_dict)
+            print(f"[SUCCESS] Restored best model weights from Epoch {best_epoch} (Val Macro F1: {best_val_macro_f1*100:.2f}%)")
+        return model
+
     model = train_torch_model(
         model=model,
         train_loader=train_loader,
