@@ -1,1 +1,18 @@
 /scratch
+/__pycache__
+
+
+# latex logs
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.idx
+*.synctex.gz
+*.toc
+
+# big models
+
+results/05_transformer_bert/saved_models
+results/06_transformer_roberta/saved_models
