@@ -1,0 +1,22 @@
+Model 1 (TF-IDF + LR) Classification Report
+===========================================================================
+Accuracy: 0.7351
+Macro F1: 0.7153
+Weighted F1: 0.7376
+
+                                        precision    recall  f1-score   support
+
+                    Caution And Advice     0.6239    0.7037    0.6614      1070
+      Displaced People And Evacuations     0.8410    0.8975    0.8683       790
+     Infrastructure And Utility Damage     0.7910    0.8169    0.8038      1617
+                Injured Or Dead People     0.8900    0.8998    0.8948      1447
+               Missing Or Found People     0.5876    0.7917    0.6746        72
+                      Not Humanitarian     0.5167    0.6080    0.5587      1245
+            Other Relevant Information     0.5633    0.4990    0.5292      2407
+              Requests Or Urgent Needs     0.4468    0.6775    0.5385       521
+Rescue Volunteering Or Donation Effort     0.8696    0.7843    0.8248      4219
+                  Sympathy And Support     0.8187    0.7799    0.7988      1772
+
+                              accuracy                         0.7351     15160
+                             macro avg     0.6949    0.7458    0.7153     15160
+                          weighted avg     0.7449    0.7351    0.7376     15160

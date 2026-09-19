@@ -1,0 +1,57 @@
+[{"stream_name":"stderr","time":8.522981824,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.523051645,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.523059955,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.523064795,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":9.302008572,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":9.302048046,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":9.302054056,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":9.302058522,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":15.009010415,"data":"[+] Active dataset directory: dataset\n"}
+,{"stream_name":"stdout","time":15.044658943,"data":"Train Split : (53531, 2) (53,531 samples)\n"}
+,{"stream_name":"stdout","time":15.044704372,"data":"Val Split   : (7793, 2) (7,793 samples)\n"}
+,{"stream_name":"stdout","time":15.044712105,"data":"Test Split  : (15160, 2) (15,160 samples)\n"}
+,{"stream_name":"stdout","time":49.84128926,"data":"Char TF-IDF matrix shape: (53531, 30000)\n"}
+,{"stream_name":"stdout","time":118.321112922,"data":"[+] Validation Macro-F1: 71.14%\n"}
+,{"stream_name":"stdout","time":118.516542865,"data":"===========================================================================\n"}
+,{"stream_name":"stdout","time":118.51658452,"data":"               MODEL 5 (CHAR TF-IDF + LR) — EVALUATION SUMMARY\n"}
+,{"stream_name":"stdout","time":118.516592616,"data":"===========================================================================\n"}
+,{"stream_name":"stdout","time":118.516598019,"data":"Accuracy          : 73.06%\n"}
+,{"stream_name":"stdout","time":118.516603693,"data":"Macro F1-Score    : 70.68%  \u003c-- [Primary Optimization Metric]\n"}
+,{"stream_name":"stdout","time":118.516609625,"data":"Weighted F1-Score : 73.41%\n"}
+,{"stream_name":"stdout","time":118.516614969,"data":"Macro Precision   : 68.28%\n"}
+,{"stream_name":"stdout","time":118.516619499,"data":"Macro Recall      : 74.74%\n"}
+,{"stream_name":"stdout","time":118.516624298,"data":"===========================================================================\n"}
+,{"stream_name":"stdout","time":118.516629536,"data":"\n"}
+,{"stream_name":"stdout","time":118.516634723,"data":"Detailed Per-Class Classification Report:\n"}
+,{"stream_name":"stdout","time":118.516640047,"data":"\n"}
+,{"stream_name":"stdout","time":118.516645206,"data":"                                        precision    recall  f1-score   support\n"}
+,{"stream_name":"stdout","time":118.516650478,"data":"\n"}
+,{"stream_name":"stdout","time":118.51665572900001,"data":"                    Caution And Advice     0.6179    0.7028    0.6576      1070\n"}
+,{"stream_name":"stdout","time":118.516661279,"data":"      Displaced People And Evacuations     0.8260    0.9076    0.8649       790\n"}
+,{"stream_name":"stdout","time":118.516666599,"data":"     Infrastructure And Utility Damage     0.7907    0.8132    0.8018      1617\n"}
+,{"stream_name":"stdout","time":118.516671643,"data":"                Injured Or Dead People     0.8970    0.8846    0.8907      1447\n"}
+,{"stream_name":"stdout","time":118.516676924,"data":"               Missing Or Found People     0.4957    0.8056    0.6138        72\n"}
+,{"stream_name":"stdout","time":118.516706817,"data":"                      Not Humanitarian     0.5194    0.6353    0.5715      1245\n"}
+,{"stream_name":"stdout","time":118.516711646,"data":"            Other Relevant Information     0.5581    0.4931    0.5236      2407\n"}
+,{"stream_name":"stdout","time":118.516715566,"data":"              Requests Or Urgent Needs     0.4313    0.6871    0.5300       521\n"}
+,{"stream_name":"stdout","time":118.516719648,"data":"Rescue Volunteering Or Donation Effort     0.8753    0.7689    0.8187      4219\n"}
+,{"stream_name":"stdout","time":118.516723601,"data":"                  Sympathy And Support     0.8169    0.7754    0.7956      1772\n"}
+,{"stream_name":"stdout","time":118.516727685,"data":"\n"}
+,{"stream_name":"stdout","time":118.516731373,"data":"                              accuracy                         0.7306     15160\n"}
+,{"stream_name":"stdout","time":118.516735537,"data":"                             macro avg     0.6828    0.7474    0.7068     15160\n"}
+,{"stream_name":"stdout","time":118.516740182,"data":"                          weighted avg     0.7441    0.7306    0.7341     15160\n"}
+,{"stream_name":"stdout","time":118.516744478,"data":"\n"}
+,{"stream_name":"stderr","time":128.707287924,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":128.707358044,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":128.919070964,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":128.919109942,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":129.705195763,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":130.114040208,"data":"[NbConvertApp] Writing 742535 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":133.412831852,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":134.553074697,"data":"[NbConvertApp] Support files will be in __results___files/\n"}
+,{"stream_name":"stderr","time":134.553111441,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":134.553537698,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":134.553901866,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":134.554126234,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":134.554478069,"data":"[NbConvertApp] Writing 364129 bytes to __results__.html\n"}
+]

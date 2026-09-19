@@ -1,0 +1,118 @@
+[{"stream_name":"stderr","time":6.096030847,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.0960770029999996,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.096082307,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.096084882,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":6.641171797,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.641205106,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.641209749,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.641214041,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":14.319022473,"data":"[+] Active dataset directory: dataset\n"}
+,{"stream_name":"stdout","time":14.319073871,"data":"Train Split : (53531, 2) (53,531 samples)\n"}
+,{"stream_name":"stdout","time":14.319077997,"data":"Val Split   : (7793, 2) (7,793 samples)\n"}
+,{"stream_name":"stdout","time":14.31908058,"data":"Test Split  : (15160, 2) (15,160 samples)\n"}
+,{"stream_name":"stdout","time":16.856505047,"data":"Target Classes: ['caution_and_advice', 'displaced_people_and_evacuations', 'infrastructure_and_utility_damage', 'injured_or_dead_people', 'missing_or_found_people', 'not_humanitarian', 'other_relevant_information', 'requests_or_urgent_needs', 'rescue_volunteering_or_donation_effort', 'sympathy_and_support']\n"}
+,{"stream_name":"stderr","time":32.580298666,"data":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stderr","time":32.580323928,"data":"\n"}
+,{"stream_name":"stderr","time":32.580328565,"data":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stdout","time":36.127768916,"data":"[+] Tokenizing splits with bert-base-uncased...\n"}
+,{"stream_name":"stdout","time":48.741424392,"data":"[+] Active computation device: cuda\n"}
+,{"stream_name":"stderr","time":58.34341759,"data":"BertForSequenceClassification LOAD REPORT from: bert-base-uncased\n"}
+,{"stream_name":"stderr","time":58.343455978,"data":"Key                                        | Status     | \n"}
+,{"stream_name":"stderr","time":58.343461874,"data":"-------------------------------------------+------------+-\n"}
+,{"stream_name":"stderr","time":58.343466796,"data":"cls.predictions.transform.LayerNorm.bias   | UNEXPECTED | \n"}
+,{"stream_name":"stderr","time":58.343471598,"data":"cls.seq_relationship.weight                | UNEXPECTED | \n"}
+,{"stream_name":"stderr","time":58.343476257,"data":"cls.seq_relationship.bias                  | UNEXPECTED | \n"}
+,{"stream_name":"stderr","time":58.343480841,"data":"cls.predictions.transform.dense.bias       | UNEXPECTED | \n"}
+,{"stream_name":"stderr","time":58.343485919,"data":"cls.predictions.bias                       | UNEXPECTED | \n"}
+,{"stream_name":"stderr","time":58.343490315,"data":"cls.predictions.transform.dense.weight     | UNEXPECTED | \n"}
+,{"stream_name":"stderr","time":58.343496448,"data":"cls.predictions.transform.LayerNorm.weight | UNEXPECTED | \n"}
+,{"stream_name":"stderr","time":58.34350575,"data":"classifier.weight                          | MISSING    | \n"}
+,{"stream_name":"stderr","time":58.343525387,"data":"classifier.bias                            | MISSING    | \n"}
+,{"stream_name":"stderr","time":58.343528135,"data":"\n"}
+,{"stream_name":"stderr","time":58.343530482,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":58.343532896,"data":"- UNEXPECTED\t:can be ignored when loading from different task/architecture; not ok if you expect identical arch.\n"}
+,{"stream_name":"stderr","time":58.343535897,"data":"- MISSING\t:those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.\n"}
+,{"stream_name":"stderr","time":58.343538518,"data":"\n"}
+,{"stream_name":"stderr","time":58.343540808,"data":"BertForSequenceClassification LOAD REPORT from: bert-base-uncased\n"}
+,{"stream_name":"stderr","time":58.34354333,"data":"Key                                        | Status     | \n"}
+,{"stream_name":"stderr","time":58.343545998,"data":"-------------------------------------------+------------+-\n"}
+,{"stream_name":"stderr","time":58.343548388,"data":"cls.predictions.transform.LayerNorm.bias   | UNEXPECTED | \n"}
+,{"stream_name":"stderr","time":58.343550758,"data":"cls.seq_relationship.weight                | UNEXPECTED | \n"}
+,{"stream_name":"stderr","time":58.343553132,"data":"cls.seq_relationship.bias                  | UNEXPECTED | \n"}
+,{"stream_name":"stderr","time":58.343555578,"data":"cls.predictions.transform.dense.bias       | UNEXPECTED | \n"}
+,{"stream_name":"stderr","time":58.343557952,"data":"cls.predictions.bias                       | UNEXPECTED | \n"}
+,{"stream_name":"stderr","time":58.343560322,"data":"cls.predictions.transform.dense.weight     | UNEXPECTED | \n"}
+,{"stream_name":"stderr","time":58.343562742,"data":"cls.predictions.transform.LayerNorm.weight | UNEXPECTED | \n"}
+,{"stream_name":"stderr","time":58.343565195,"data":"classifier.weight                          | MISSING    | \n"}
+,{"stream_name":"stderr","time":58.343567573,"data":"classifier.bias                            | MISSING    | \n"}
+,{"stream_name":"stderr","time":58.343570067,"data":"\n"}
+,{"stream_name":"stderr","time":58.343572344,"data":"Notes:\n"}
+,{"stream_name":"stderr","time":58.343574731,"data":"- UNEXPECTED\t:can be ignored when loading from different task/architecture; not ok if you expect identical arch.\n"}
+,{"stream_name":"stderr","time":58.343577312,"data":"- MISSING\t:those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.\n"}
+,{"stream_name":"stderr","time":58.579307661,"data":"/tmp/ipykernel_23/1365988241.py:7: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.\n"}
+,{"stream_name":"stderr","time":58.579342049,"data":"  scaler = torch.cuda.amp.GradScaler(enabled=torch.cuda.is_available())\n"}
+,{"stream_name":"stderr","time":58.579347917,"data":"\n"}
+,{"stream_name":"stderr","time":58.579351507,"data":"/tmp/ipykernel_23/1365988241.py:7: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.\n"}
+,{"stream_name":"stderr","time":58.5793555,"data":"  scaler = torch.cuda.amp.GradScaler(enabled=torch.cuda.is_available())\n"}
+,{"stream_name":"stderr","time":58.779538553,"data":"/tmp/ipykernel_23/1342864681.py:15: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.\n"}
+,{"stream_name":"stderr","time":58.779576582,"data":"  with torch.cuda.amp.autocast(enabled=torch.cuda.is_available()):\n"}
+,{"stream_name":"stderr","time":58.77958307,"data":"\n"}
+,{"stream_name":"stderr","time":58.779599793,"data":"/tmp/ipykernel_23/1342864681.py:15: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.\n"}
+,{"stream_name":"stderr","time":58.779604484000004,"data":"  with torch.cuda.amp.autocast(enabled=torch.cuda.is_available()):\n"}
+,{"stream_name":"stdout","time":364.169543557,"data":"Epoch 01 | Train Loss: 0.8324 | Val Macro-F1: 67.38%\n"}
+,{"stream_name":"stderr","time":364.170452686,"data":"/tmp/ipykernel_23/1342864681.py:15: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.\n"}
+,{"stream_name":"stderr","time":364.170467737,"data":"  with torch.cuda.amp.autocast(enabled=torch.cuda.is_available()):\n"}
+,{"stream_name":"stderr","time":364.170472902,"data":"\n"}
+,{"stream_name":"stderr","time":364.170477302,"data":"/tmp/ipykernel_23/1342864681.py:15: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.\n"}
+,{"stream_name":"stderr","time":364.170482216,"data":"  with torch.cuda.amp.autocast(enabled=torch.cuda.is_available()):\n"}
+,{"stream_name":"stdout","time":674.190636456,"data":"Epoch 02 | Train Loss: 0.5431 | Val Macro-F1: 69.28%\n"}
+,{"stream_name":"stderr","time":674.191535629,"data":"/tmp/ipykernel_23/1342864681.py:15: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.\n"}
+,{"stream_name":"stderr","time":674.191562656,"data":"  with torch.cuda.amp.autocast(enabled=torch.cuda.is_available()):\n"}
+,{"stream_name":"stderr","time":674.191568203,"data":"\n"}
+,{"stream_name":"stderr","time":674.19157294,"data":"/tmp/ipykernel_23/1342864681.py:15: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.\n"}
+,{"stream_name":"stderr","time":674.191577978,"data":"  with torch.cuda.amp.autocast(enabled=torch.cuda.is_available()):\n"}
+,{"stream_name":"stdout","time":983.654042176,"data":"Epoch 03 | Train Loss: 0.4256 | Val Macro-F1: 72.21%\n"}
+,{"stream_name":"stdout","time":1071.586381217,"data":"===========================================================================\n"}
+,{"stream_name":"stdout","time":1071.586415392,"data":"               BERT (BERT-BASE-UNCASED) — EVALUATION SUMMARY\n"}
+,{"stream_name":"stdout","time":1071.586422011,"data":"===========================================================================\n"}
+,{"stream_name":"stdout","time":1071.586427259,"data":"Accuracy          : 75.33%\n"}
+,{"stream_name":"stdout","time":1071.586432291,"data":"Macro F1-Score    : 73.18%  \u003c-- [Primary Optimization Metric]\n"}
+,{"stream_name":"stdout","time":1071.586437663,"data":"Weighted F1-Score : 74.94%\n"}
+,{"stream_name":"stdout","time":1071.586442224,"data":"Macro Precision   : 70.78%\n"}
+,{"stream_name":"stdout","time":1071.586446634,"data":"Macro Recall      : 78.43%\n"}
+,{"stream_name":"stdout","time":1071.586451291,"data":"===========================================================================\n"}
+,{"stream_name":"stdout","time":1071.586456195,"data":"\n"}
+,{"stream_name":"stdout","time":1071.58646095,"data":"Detailed Per-Class Classification Report:\n"}
+,{"stream_name":"stdout","time":1071.586465686,"data":"\n"}
+,{"stream_name":"stdout","time":1071.586470331,"data":"                                        precision    recall  f1-score   support\n"}
+,{"stream_name":"stdout","time":1071.5864751,"data":"\n"}
+,{"stream_name":"stdout","time":1071.586479876,"data":"                    Caution And Advice     0.6049    0.8056    0.6910      1070\n"}
+,{"stream_name":"stdout","time":1071.586484826,"data":"      Displaced People And Evacuations     0.8468    0.9304    0.8866       790\n"}
+,{"stream_name":"stdout","time":1071.586500524,"data":"     Infrastructure And Utility Damage     0.7886    0.8349    0.8111      1617\n"}
+,{"stream_name":"stdout","time":1071.586504868,"data":"                Injured Or Dead People     0.9058    0.9440    0.9245      1447\n"}
+,{"stream_name":"stdout","time":1071.586508826,"data":"               Missing Or Found People     0.6058    0.8750    0.7159        72\n"}
+,{"stream_name":"stdout","time":1071.586512568,"data":"                      Not Humanitarian     0.5909    0.6369    0.6131      1245\n"}
+,{"stream_name":"stdout","time":1071.586516402,"data":"            Other Relevant Information     0.6415    0.3806    0.4777      2407\n"}
+,{"stream_name":"stdout","time":1071.586519844,"data":"              Requests Or Urgent Needs     0.3979    0.7927    0.5298       521\n"}
+,{"stream_name":"stdout","time":1071.586523422,"data":"Rescue Volunteering Or Donation Effort     0.8747    0.8220    0.8475      4219\n"}
+,{"stream_name":"stdout","time":1071.586527464,"data":"                  Sympathy And Support     0.8215    0.8205    0.8210      1772\n"}
+,{"stream_name":"stdout","time":1071.586531543,"data":"\n"}
+,{"stream_name":"stdout","time":1071.586535181,"data":"                              accuracy                         0.7533     15160\n"}
+,{"stream_name":"stdout","time":1071.586539014,"data":"                             macro avg     0.7078    0.7843    0.7318     15160\n"}
+,{"stream_name":"stdout","time":1071.586542721,"data":"                          weighted avg     0.7637    0.7533    0.7494     15160\n"}
+,{"stream_name":"stdout","time":1071.586546571,"data":"\n"}
+,{"stream_name":"stderr","time":1080.462109291,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":1080.46214115,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":1080.60098064,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":1080.60100443,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":1081.163672,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":1081.489262927,"data":"[NbConvertApp] Writing 915293 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":1083.801962967,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":1084.67987875,"data":"[NbConvertApp] Support files will be in __results___files/\n"}
+,{"stream_name":"stderr","time":1084.67990774,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":1084.68022683,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":1084.680437015,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":1084.680862297,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":1084.681122619,"data":"[NbConvertApp] Making directory __results___files\n"}
+,{"stream_name":"stderr","time":1084.681414206,"data":"[NbConvertApp] Writing 454269 bytes to __results__.html\n"}
+]

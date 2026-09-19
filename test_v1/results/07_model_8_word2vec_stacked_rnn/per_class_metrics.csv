@@ -1,0 +1,11 @@
+Class,Precision (%),Recall (%),F1-Score (%)
+Caution And Advice,0.0,0.0,0.0
+Displaced People And Evacuations,0.0,0.0,0.0
+Infrastructure And Utility Damage,0.0,0.0,0.0
+Missing Or Found People,0.0,0.0,0.0
+Other Relevant Information,0.0,0.0,0.0
+Not Humanitarian,0.0,0.0,0.0
+Requests Or Urgent Needs,0.0,0.0,0.0
+Rescue Volunteering Or Donation Effort,0.0,0.0,0.0
+Sympathy And Support,0.0,0.0,0.0
+Injured Or Dead People,9.545484530641863,100.0,17.42743586655426
