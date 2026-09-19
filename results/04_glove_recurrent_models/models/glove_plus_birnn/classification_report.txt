@@ -1,0 +1,16 @@
+                                        precision    recall  f1-score   support
+
+                    caution_and_advice     0.6602    0.6374    0.6486      1070
+      displaced_people_and_evacuations     0.7885    0.9203    0.8493       790
+     infrastructure_and_utility_damage     0.7166    0.8553    0.7798      1617
+                injured_or_dead_people     0.8674    0.9316    0.8984      1447
+               missing_or_found_people     0.5413    0.8194    0.6519        72
+                      not_humanitarian     0.4675    0.6233    0.5343      1245
+            other_relevant_information     0.5782    0.3718    0.4526      2407
+              requests_or_urgent_needs     0.4055    0.6756    0.5068       521
+rescue_volunteering_or_donation_effort     0.8814    0.7397    0.8044      4219
+                  sympathy_and_support     0.7303    0.8222    0.7736      1772
+
+                              accuracy                         0.7124     15160
+                             macro avg     0.6637    0.7397    0.6900     15160
+                          weighted avg     0.7243    0.7124    0.7095     15160

@@ -1,0 +1,11 @@
+{
+  "Model": "Char TF-IDF + LinearSVC",
+  "Feature Representation": "CHAR_TFIDF",
+  "Val Accuracy": 0.7361734890286155,
+  "Val Macro F1": 0.7127727544656512,
+  "Test Accuracy": 0.7362137203166227,
+  "Test Macro F1": 0.7119744070778896,
+  "Test Weighted F1": 0.7344466018279132,
+  "Test Macro Precision": 0.7025438455524982,
+  "Test Macro Recall": 0.7239332017826079
+}

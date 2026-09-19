@@ -1,0 +1,11 @@
+{
+    "Model": "Word2Vec + BiRNN",
+    "Cell Type": "BIRNN",
+    "Layers": 1,
+    "Val Best Macro F1": 0.6961077355788542,
+    "Test Accuracy": 0.7273087071240105,
+    "Test Macro F1": 0.6994603992062854,
+    "Test Weighted F1": 0.7249969020955819,
+    "Test Macro Precision": 0.6777130538680177,
+    "Test Macro Recall": 0.7337468355988711
+}

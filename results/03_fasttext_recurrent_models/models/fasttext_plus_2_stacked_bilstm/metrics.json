@@ -1,0 +1,11 @@
+{
+  "Model": "FastText + 2-Stacked BiLSTM",
+  "Cell Type": "BILSTM",
+  "Layers": 2,
+  "Val Best Macro F1": 0.698782764806736,
+  "Test Accuracy": 0.7245382585751979,
+  "Test Macro F1": 0.7060280247902357,
+  "Test Weighted F1": 0.7253723317278867,
+  "Test Macro Precision": 0.6829983445476883,
+  "Test Macro Recall": 0.7425511163300594
+}

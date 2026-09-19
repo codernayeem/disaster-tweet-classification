@@ -1,0 +1,11 @@
+{
+  "Model": "Word TF-IDF + MultinomialNB",
+  "Feature Representation": "WORD_TFIDF",
+  "Val Accuracy": 0.6807391248556397,
+  "Val Macro F1": 0.6230107951395828,
+  "Test Accuracy": 0.6903693931398417,
+  "Test Macro F1": 0.6375184554857942,
+  "Test Weighted F1": 0.6831622865208665,
+  "Test Macro Precision": 0.6769486756367233,
+  "Test Macro Recall": 0.6161099630669012
+}

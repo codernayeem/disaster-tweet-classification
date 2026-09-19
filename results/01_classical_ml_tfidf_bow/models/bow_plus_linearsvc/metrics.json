@@ -1,0 +1,11 @@
+{
+  "Model": "BoW + LinearSVC",
+  "Feature Representation": "BOW",
+  "Val Accuracy": 0.6908764275631978,
+  "Val Macro F1": 0.6648811587020587,
+  "Test Accuracy": 0.691622691292876,
+  "Test Macro F1": 0.6672208633704567,
+  "Test Weighted F1": 0.690435035410408,
+  "Test Macro Precision": 0.664720393988329,
+  "Test Macro Recall": 0.6699276630684528
+}

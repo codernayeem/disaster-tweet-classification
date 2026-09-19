@@ -1,0 +1,11 @@
+{
+  "Model": "Word TF-IDF + LogisticRegression",
+  "Feature Representation": "WORD_TFIDF",
+  "Val Accuracy": 0.7297574746567432,
+  "Val Macro F1": 0.7131770355622147,
+  "Test Accuracy": 0.7363456464379947,
+  "Test Macro F1": 0.717225089855244,
+  "Test Weighted F1": 0.7386569402201982,
+  "Test Macro Precision": 0.6982909281879197,
+  "Test Macro Recall": 0.7444233678618437
+}

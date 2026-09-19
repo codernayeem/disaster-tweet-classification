@@ -1,0 +1,11 @@
+{
+    "Model": "Word2Vec + 2-Stacked BiLSTM",
+    "Cell Type": "BILSTM",
+    "Layers": 2,
+    "Val Best Macro F1": 0.6943543515640448,
+    "Test Accuracy": 0.7145778364116095,
+    "Test Macro F1": 0.6892094421234622,
+    "Test Weighted F1": 0.7137271674676395,
+    "Test Macro Precision": 0.666575664008304,
+    "Test Macro Recall": 0.7449610735826036
+}

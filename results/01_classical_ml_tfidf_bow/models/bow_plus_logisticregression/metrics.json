@@ -1,0 +1,11 @@
+{
+  "Model": "BoW + LogisticRegression",
+  "Feature Representation": "BOW",
+  "Val Accuracy": 0.723598100859746,
+  "Val Macro F1": 0.7070220435144645,
+  "Test Accuracy": 0.7253957783641161,
+  "Test Macro F1": 0.7084794420720841,
+  "Test Weighted F1": 0.7277063530248821,
+  "Test Macro Precision": 0.6991234650660016,
+  "Test Macro Recall": 0.71979689148193
+}

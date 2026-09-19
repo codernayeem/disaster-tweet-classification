@@ -1,0 +1,11 @@
+{
+    "Model": "GloVe + BiLSTM",
+    "Cell Type": "BILSTM",
+    "Layers": 1,
+    "Val Best Macro F1": 0.7043832618628658,
+    "Test Accuracy": 0.7296833773087071,
+    "Test Macro F1": 0.704408495430769,
+    "Test Weighted F1": 0.7282554281306732,
+    "Test Macro Precision": 0.6804105803681585,
+    "Test Macro Recall": 0.7428345836527466
+}

@@ -1,0 +1,11 @@
+{
+  "Model": "Word TF-IDF + LinearSVC",
+  "Feature Representation": "WORD_TFIDF",
+  "Val Accuracy": 0.7269344283331195,
+  "Val Macro F1": 0.7035715386797106,
+  "Test Accuracy": 0.7301451187335092,
+  "Test Macro F1": 0.708034684861179,
+  "Test Weighted F1": 0.7278709399647751,
+  "Test Macro Precision": 0.7004405300862603,
+  "Test Macro Recall": 0.7173613627833866
+}

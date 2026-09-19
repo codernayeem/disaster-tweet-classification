@@ -1,0 +1,11 @@
+{
+  "Model": "BoW + ComplementNB",
+  "Feature Representation": "BOW",
+  "Val Accuracy": 0.6960092390606955,
+  "Val Macro F1": 0.6280361471663232,
+  "Test Accuracy": 0.6945250659630607,
+  "Test Macro F1": 0.6192120924698016,
+  "Test Weighted F1": 0.6653991366223307,
+  "Test Macro Precision": 0.6615791236655018,
+  "Test Macro Recall": 0.624373986131759
+}
