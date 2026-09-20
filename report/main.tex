@@ -51,7 +51,7 @@
     
     {\fontsize{16pt}{20pt}\selectfont \textbf{\underline{PROJECT REPORT}}}\\[2.5em]
     
-    {\fontsize{18pt}{24pt}\selectfont \textbf{Title: Disaster Response Tweet Classification}}\\[2.5em]
+    {\fontsize{18pt}{24pt}\selectfont \textbf{Title: Disaster Response Tweet Classification: Multi-Paradigm Benchmark and Interactive Crisis Triage System}}\\[2.5em]
     
     {\fontsize{12pt}{16pt}\selectfont \textbf{Course No:} CSE 4122}\\[0.3em]
     {\fontsize{12pt}{16pt}\selectfont \textbf{Course Title:} Natural Language Processing Laboratory}\\[0.3em]
@@ -97,33 +97,34 @@
 % 1. INTRODUCTION
 % =============================================================
 \section{Introduction}
-During natural and human-induced disasters such as hurricanes, earthquakes, floods, and wildfires, social media platforms like Twitter/X become primary real-time communication channels. Affected citizens, emergency responders, and relief agencies post time-critical updates covering urgent needs, casualties, infrastructure damage, and rescue operations. However, extracting actionable signals from high-velocity crisis streams is challenging, as the vast majority of messages consist of emotional commentary, prayers, or general media chatter. Automated classification is therefore necessary to categorize and route relevant messages to humanitarian organizations in real time.
+During major natural and anthropogenic emergencies such as hurricanes, earthquakes, flash floods, and wildfires, microblogging platforms like Twitter/X serve as critical real-time communication backbones. Eyewitnesses, stranded victims, emergency volunteers, and official relief organizations post time-sensitive situation reports covering urgent life-threatening needs, casualties, infrastructure collapses, and relief coordination. However, operational crisis response agencies face an acute information triage bottleneck: high-velocity disaster streams are overwhelmed by noise, casual commentary, media echoes, and emotional chatter. Automated classification is vital to filter, categorize, and route actionable humanitarian intelligence to field agencies in real time.
 
-In this project, we formulate disaster response tweet categorization as a 10-class text classification task on the HumAID dataset (76,484 annotated tweets). The primary components of this project include:
+In this project, we formulate disaster tweet classification as a 10-class humanitarian categorization task on the benchmark \textbf{HumAID} dataset (76,484 annotated tweets). Our core research contributions include:
 \begin{itemize}
-    \item \textbf{Social Media Text Preprocessing:} A custom cleaning pipeline designed to handle Twitter artifacts, including URL and mention removal, CamelCase hashtag segmentation, HTML entity decoding, crisis emoji translation, and slang normalization.
-    \item \textbf{Comprehensive Model Benchmarking:} Training and evaluating 24 model configurations spanning Classical ML (BoW and TF-IDF with Naive Bayes, LinearSVC, and Logistic Regression), Word Embeddings with Recurrent Networks (Word2Vec, FastText, and GloVe with RNN, LSTM, BiLSTM, and Stacked BiLSTM), and Fine-Tuned Contextual Transformers (BERT and RoBERTa).
-    \item \textbf{Performance and Error Analysis:} Diagnostic evaluations using confusion matrices, per-class metrics, and error analysis across rare and frequent disaster categories.
-    \item \textbf{Interactive Application:} A modular Streamlit web application providing real-time single-tweet predictions, multi-model comparisons, batch evaluations, and an interactive benchmark leaderboard.
+    \item \textbf{Domain-Specific Preprocessing \& Noise Characterization:} A comprehensive cleaning pipeline specifically designed for social media crisis text, featuring HTML entity decoding, crisis emoji-to-text semantic mapping, CamelCase hashtag segmentation, URL/mention stripping, and crisis slang normalization, which reduces vocabulary sparsity by 40.8\%.
+    \item \textbf{Multi-Paradigm Systematic Benchmark:} Comprehensive design, training, hyperparameter optimization, and evaluation across \textbf{6 distinct model families} spanning Classical Machine Learning (BoW, Word TF-IDF, Character TF-IDF with Naive Bayes, LinearSVC, Logistic Regression), Dense Word Embeddings with Recurrent Networks (Word2Vec, FastText, GloVe paired with RNN, LSTM, BiLSTM, Stacked BiLSTM, BiGRU), and Pretrained Contextual Transformers (BERT Base and RoBERTa Base).
+    \item \textbf{Hyperparameter Sweep \& Sequence Length Ablation:} Systematic empirical sweeps over sequence truncation thresholds ($L \in \{32, 48, 64, 128\}$) and transformer learning rates ($\eta \in \{1\times 10^{-5}, 2\times 10^{-5}, 3\times 10^{-5}, 5\times 10^{-5}\}$), establishing optimal convergence configurations.
+    \item \textbf{Soft-Voting Weighted Ensemble Architecture:} A multi-model ensemble engine that aggregates class probability distributions weighted by validated benchmark Macro F1 scores ($P_{\text{ens}}(c) = \sum w_m P_m(c) / \sum w_m$).
+    \item \textbf{Production-Ready Interactive Web Application:} A full-featured Streamlit crisis triage dashboard providing real-time single-tweet classification, multi-model consensus breakdown, test split batch evaluation, and an interactive benchmark suite explorer.
 \end{itemize}
 
 % =============================================================
-% 2. DATASET OVERVIEW
+% 2. DATASET OVERVIEW & NOISE CHARACTERIZATION
 % =============================================================
-\section{Dataset Overview}
+\section{Dataset Overview \& Noise Characterization}
 
 \subsection{HumAID Benchmark Dataset}
-This study leverages the \textbf{HumAID} (\textbf{Hum}an-\textbf{A}nnotated Disaster \textbf{I}ncidents \textbf{D}ata from Twitter) dataset, curated by the Qatar Computing Research Institute (QCRI). HumAID is one of the largest and most rigorously annotated crisis response corpora, comprising \textbf{76,484 tweets} collected across 19 global disaster events spanning 2016 through 2019, including major hurricanes (Harvey, Irma, Maria, Dorian, Florence), earthquakes (Puebla, Nepal), wildfires (California, Greece), and monsoon floods (Kerala, Maryland).
+We utilize the \textbf{HumAID} (\textbf{Hum}an-\textbf{A}nnotated Disaster \textbf{I}ncidents \textbf{D}ata from Twitter) dataset curated by the Qatar Computing Research Institute (QCRI) \cite{alam2021humaid}. The corpus comprises \textbf{76,484 tweets} collected across 19 major disaster events between 2016 and 2019, covering hurricanes (Harvey, Irma, Maria, Dorian, Florence), earthquakes (Puebla, Nepal), wildfires (California, Greece), and seasonal floods (Kerala, Maryland).
 
-\subsection{Dataset Split and Class Imbalance}
-The dataset is partitioned into canonical, stratified splits ensuring identical event and label distributions:
+\subsection{Dataset Partitioning and Class Imbalance}
+The dataset is partitioned into canonical, stratified splits ensuring identical event and label distributions across sets:
 \begin{itemize}
     \item \textbf{Training Set (70\%):} 53,531 tweets
     \item \textbf{Validation Set (10\%):} 7,793 tweets
     \item \textbf{Test Set (20\%):} 15,160 tweets
 \end{itemize}
 
-A critical challenge inherent to HumAID is its \textbf{severe class imbalance}. As illustrated in Figure~\ref{fig:class_distribution} and detailed in Table~\ref{tab:class_overview}, the dominant class (\textit{Rescue, Volunteering \& Donations}) accounts for 21,304 tweets (27.85\% of the corpus), whereas the rarest class (\textit{Missing or Found People}) accounts for only 364 tweets (0.48\% of the corpus), yielding an extreme imbalance ratio of \textbf{58.5:1}.
+A key challenge inherent to HumAID is its \textbf{extreme class imbalance} (a 58.5:1 ratio between majority and minority classes). As summarized in Table~\ref{tab:class_overview} and Figure~\ref{fig:class_distribution}, the dominant category (\textit{Rescue, Volunteering \& Donations}) comprises 21,304 tweets (27.85\%), whereas the rarest class (\textit{Missing or Found People}) accounts for only 364 tweets (0.48\%).
 
 \begin{figure}[H]
     \centering
@@ -135,71 +136,64 @@ A critical challenge inherent to HumAID is its \textbf{severe class imbalance}. 
 \begin{table}[H]
     \centering
     \small
-    \caption{HumAID Target Class Categorization, Descriptions, and Split Distributions.}
+    \caption{HumAID Target Class Categorization, Operational Descriptions, and Split Distributions.}
     \label{tab:class_overview}
-    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lp{5.6cm}rrrr@{}}
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lp{5.4cm}rrrr@{}}
         \toprule
-        \textbf{Humanitarian Category} & \textbf{Description / Scope} & \textbf{Train} & \textbf{Val} & \textbf{Test} & \textbf{Total} \\
+        \textbf{Humanitarian Category} & \textbf{Operational Scope / Description} & \textbf{Train} & \textbf{Val} & \textbf{Test} & \textbf{Total} \\
         \midrule
-        Caution \& Advice & Warnings, safety advice, weather guidance & 3,763 & 550 & 1,070 & 5,383 \\
-        Displaced People \& Evacuations & Evacuation notices, shelters, refugees & 2,786 & 406 & 790 & 3,982 \\
-        Infrastructure \& Utility Damage & Damaged roads, power outages, bridges & 5,710 & 831 & 1,617 & 8,158 \\
-        Injured or Dead People & Casualties, injuries, confirmed deaths & 5,108 & 744 & 1,447 & 7,299 \\
-        Missing or Found People & Missing person alerts, found notices & 256 & 36 & 72 & 364 \\
-        Not Humanitarian & Casual chats, jokes, advertisements & 4,395 & 640 & 1,245 & 6,280 \\
-        Other Relevant Information & Situational news, general updates & 8,499 & 1,237 & 2,407 & 12,143 \\
-        Requests \& Urgent Needs & Urgent SOS, food, water, medical aid & 1,838 & 267 & 521 & 2,626 \\
-        Rescue, Volunteering \& Donations & Red Cross, relief efforts, donation drives & 14,891 & 2,194 & 4,219 & 21,304 \\
-        Sympathy \& Support & Prayers, emotional condolences, solidarity & 6,285 & 888 & 1,772 & 8,945 \\
+        Caution \& Advice & Early warnings, safety guidance, weather alerts & 3,763 & 550 & 1,070 & 5,383 \\
+        Displaced People \& Evacuations & Evacuation orders, temporary shelters, refugees & 2,786 & 406 & 790 & 3,982 \\
+        Infrastructure \& Utility Damage & Collapsed bridges, damaged roads, power blackouts & 5,710 & 831 & 1,617 & 8,158 \\
+        Injured or Dead People & Casualties, injury reports, confirmed fatalities & 5,108 & 744 & 1,447 & 7,299 \\
+        Missing or Found People & Missing person alerts, reunions, found notices & 256 & 36 & 72 & 364 \\
+        Not Humanitarian & Casual chats, political commentary, irrelevant spam & 4,395 & 640 & 1,245 & 6,280 \\
+        Other Relevant Information & Broad situation updates, news broadcasts & 8,499 & 1,237 & 2,407 & 12,143 \\
+        Requests \& Urgent Needs & Urgent calls for food, water, medical aid, rescue & 1,838 & 267 & 521 & 2,626 \\
+        Rescue, Volunteering \& Donations & Donation drives, NGO relief operations, volunteer work & 14,891 & 2,194 & 4,219 & 21,304 \\
+        Sympathy \& Support & Condolences, prayers, emotional solidarity messages & 6,285 & 888 & 1,772 & 8,945 \\
         \midrule
         \textbf{Total Tweets} & & \textbf{53,531} & \textbf{7,793} & \textbf{15,160} & \textbf{76,484} \\
         \bottomrule
     \end{tabular*}
 \end{table}
 
-% =============================================================
-% 3. DATASET PREPROCESSING & NOISE CHARACTERIZATION
-% =============================================================
-\section{Dataset Preprocessing \& Noise Characterization}
-
-\subsection{Social Media Noise Analysis}
-Raw crisis tweets are notoriously noisy, ungrammatical, and laden with platform-specific artifacts that degrade NLP representation learning. Our quantitative profiling identified eight distinct noise dimensions in the 53,531 training tweets:
+\subsection{Noise Profiling \& Preprocessing Pipeline}
+Raw crisis tweets contain heavy informal noise, platform artifacts, and irregular formatting. Our quantitative analysis identified eight prominent noise dimensions in the 53,531 training tweets:
 \begin{enumerate}
-    \item \textbf{Web URLs and Links:} Over 6,000 raw hyperlinks (\texttt{http://...}, \texttt{https://...}) pointing to external pages.
-    \item \textbf{User Mentions:} 33,250 platform handles (\texttt{@username}) carrying negligible semantic crisis information.
-    \item \textbf{Compound Hashtags:} 66,482 compound hashtags (e.g., \texttt{\#FlashFloodWarning}, \texttt{\#HurricaneHarvey}) whose concatenated casing prevents standard dictionary lookups.
+    \item \textbf{Web URLs and Links:} Over 6,100 raw hyperlinks (\texttt{http://...}, \texttt{https://...}) pointing to non-text media.
+    \item \textbf{User Mentions:} 33,250 platform handles (\texttt{@username}) carrying no semantic crisis content.
+    \item \textbf{Compound Hashtags:} 66,482 compound hashtags (e.g., \texttt{\#FlashFloodRelief}) whose concatenated format hampers lexical lookups.
     \item \textbf{HTML Entities:} 6,275 unescaped symbols (\texttt{\&amp;}, \texttt{\&lt;}, \texttt{\&gt;}, \texttt{\&quot;}).
-    \item \textbf{Mojibake and Non-ASCII Encodings:} 23,900 corrupt characters and irregular smart punctuation (\texttt{’}, \texttt{“}, \texttt{—}).
-    \item \textbf{Retweet Signatures:} 8,214 \texttt{RT @handle:} prefix tags.
-    \item \textbf{Raw Emojis:} 2,867 pictorial emoji symbols (e.g., Siren, Warning, Wave, Fire, Praying Hands, SOS) that provide vital emotional and crisis signals if properly translated rather than discarded.
-    \item \textbf{Informal Contractions and Slang:} Widespread colloquialisms (\texttt{pls}, \texttt{emerg}, \texttt{evac}, \texttt{u}, \texttt{ur}, \texttt{can't}, \texttt{won't}).
+    \item \textbf{Mojibake and Non-ASCII Encodings:} 23,900 corrupt characters and smart punctuation marks (\texttt{’}, \texttt{“}, \texttt{—}).
+    \item \textbf{Retweet Signatures:} 8,214 \texttt{RT @handle:} prefixes.
+    \item \textbf{Raw Emojis:} 2,867 pictorial emoji symbols (e.g., Siren, Warning, Fire, Wave, SOS, Praying Hands) carrying vital emotional signals that must be translated rather than stripped.
+    \item \textbf{Informal Contractions and Slang:} Frequent shorthands (\texttt{pls}, \texttt{emerg}, \texttt{evac}, \texttt{victs}, \texttt{w/}, \texttt{b4}).
 \end{enumerate}
 
-Figure~\ref{fig:noise_artifacts} illustrates the frequency distribution of top hashtags, user mentions, unescaped HTML entities, and crisis emojis present in the raw corpus.
+Figure~\ref{fig:noise_artifacts} illustrates the frequency distribution of top hashtags, handles, HTML entities, and crisis emojis.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{figures/eda_noise_artifacts.png}
-    \caption{Frequency breakdown of major social media noise dimensions: (a) Top crisis hashtags, (b) Top user handles, (c) Unescaped HTML entities, and (d) Crisis emojis with translated semantic actions.}
+    \caption{Distribution of social media noise dimensions: (a) Top crisis hashtags, (b) Top user handles, (c) Unescaped HTML entities, and (d) Crisis emojis with translated semantic descriptors.}
     \label{fig:noise_artifacts}
 \end{figure}
 
-\subsection{Preprocessing Pipeline Specification}
-To preserve vital crisis semantics while eliminating noise, an automated, deterministic preprocessing pipeline was implemented:
+To address these artifacts, we built a deterministic preprocessing pipeline:
 \begin{enumerate}
-    \item \textbf{HTML Decoding:} Full unescaping via \texttt{html.unescape()} transforming entities into canonical ASCII.
-    \item \textbf{Domain-Specific Emoji Translation:} Rather than stripping emojis, 15+ high-frequency crisis emojis are translated into informative text descriptors (e.g., Siren/Warning $\rightarrow$ \textit{``emergency warning alert''}, Wave $\rightarrow$ \textit{``flood tsunami water surge''}, SOS $\rightarrow$ \textit{``urgent help request emergency''}, Praying Hands $\rightarrow$ \textit{``prayer support''}).
-    \item \textbf{URL and Mention Stripping:} Regular expressions remove all web URLs and user handles (\texttt{@mentions}).
-    \item \textbf{CamelCase Hashtag Segmentation:} Splitting compound hashtags into distinct lexical tokens using regex lookarounds:
+    \item \textbf{HTML Decoding:} Unescaping all entities via \texttt{html.unescape()}.
+    \item \textbf{Domain-Specific Emoji Translation:} Translating crisis emojis into descriptive tokens (e.g., Siren $\rightarrow$ \textit{``emergency warning alert''}, Wave $\rightarrow$ \textit{``flood tsunami water surge''}, SOS $\rightarrow$ \textit{``urgent help request emergency''}, Praying Hands $\rightarrow$ \textit{``prayer support''}).
+    \item \textbf{URL and Mention Stripping:} Regular expressions remove all URLs and user handles.
+    \item \textbf{CamelCase Hashtag Segmentation:} Splitting compound hashtags into distinct lexical words:
     \begin{equation}
         \text{\#HurricaneFlorenceRelief} \longrightarrow \text{hurricane florence relief}
     \end{equation}
-    \item \textbf{Contraction Expansion and Slang Normalization:} Normalizing 20+ English contractions and 17 crisis slang terms (\texttt{pls} $\rightarrow$ \textit{please}, \texttt{emerg} $\rightarrow$ \textit{emergency}, \texttt{evac} $\rightarrow$ \textit{evacuation}, \texttt{victs} $\rightarrow$ \textit{victims}).
-    \item \textbf{Character Elongation and Whitespace Normalization:} Collapsing character repetitions exceeding length two (e.g., \textit{``heeeeelp''} $\rightarrow$ \textit{``heelp''}) and trimming excess whitespace.
+    \item \textbf{Contraction Expansion and Slang Normalization:} Mapping 20+ English contractions and 17 crisis slang abbreviations to standard English.
+    \item \textbf{Character Elongation Normalization:} Truncating character repetitions exceeding length two (e.g., \textit{``pleeeaaase''} $\rightarrow$ \textit{``please''}) and standardizing whitespace.
 \end{enumerate}
 
-\subsection{Quantitative Preprocessing Impact}
-As demonstrated in Table~\ref{tab:noise_reduction} and visualized in Figure~\ref{fig:noise_reduction}, the sanitization pipeline achieved complete elimination of syntactic noise while reducing vocabulary sparsity from 121,237 tokens down to 71,822 tokens (\textbf{a 40.8\% reduction in vocabulary sparsity}), drastically improving downstream embedding generalization.
+As detailed in Table~\ref{tab:noise_reduction} and visualized in Figure~\ref{fig:noise_reduction}, the sanitization pipeline achieved complete elimination of syntactic noise while reducing vocabulary sparsity from 121,237 down to 71,822 tokens (\textbf{a 40.8\% sparsity reduction}).
 
 \begin{figure}[H]
     \centering
@@ -231,8 +225,8 @@ As demonstrated in Table~\ref{tab:noise_reduction} and visualized in Figure~\ref
     \end{tabularx}
 \end{table}
 
-\subsection{Text Length Distribution and Crisis N-Grams}
-Figure~\ref{fig:length_dist} illustrates the word count probability density distribution before and after cleaning. The cleaning process reduces average tweet length from 21.4 words to 18.2 words by removing uninformative noise tokens while preserving meaningful content words. Furthermore, Figure~\ref{fig:ngrams} highlights the top crisis unigrams and bigrams extracted from the cleaned corpus, demonstrating strong semantic relevance to humanitarian operations.
+\subsection{Sequence Length Distributions \& Crisis N-Grams}
+Figure~\ref{fig:length_dist} shows the word count probability density distribution before and after cleaning. The average length decreases from 21.4 words to 18.2 words while retaining essential crisis keywords. Figure~\ref{fig:ngrams} highlights the top crisis unigrams and bigrams extracted from the cleaned corpus.
 
 \begin{figure}[H]
     \centering
@@ -249,117 +243,131 @@ Figure~\ref{fig:length_dist} illustrates the word count probability density dist
 \end{figure}
 
 % =============================================================
-% 4. MODEL ARCHITECTURES & EXPERIMENTAL PIPELINES
+% 3. MODEL ARCHITECTURES & EXPERIMENTAL SUITES
 % =============================================================
-\section{Model Architectures \& Experimental Pipelines}
+\section{Model Architectures \& Experimental Suites}
 
-To provide an exhaustive benchmark, we designed, trained, and evaluated \textbf{24 distinct models} categorized by architectural paradigm and feature representation.
+We systematically evaluated six model families to span linear baselines, recurrent embeddings, and transformer architectures.
 
-\subsection{Classical Machine Learning Pipelines (10 Models)}
-We evaluated three feature extraction strategies paired with four linear classifiers:
-\begin{enumerate}
-    \item \textbf{Bag-of-Words (CountVectorizer):} Unigram count matrix constrained to the top 20,000 features with $df \in [2, \text{max}]$.
-    \item \textbf{Word-level TF-IDF (TfidfVectorizer):} Sublinear term-frequency scaling ($1 + \log(tf)$), unigrams and bigrams ($n \in [1, 2]$), 20,000 maximum features, smooth IDF.
-    \item \textbf{Character-level TF-IDF (TfidfVectorizer):} Sublinear character n-grams ($n \in [2, 5]$) capturing morphological prefixes and misspellings, capped at 30,000 features.
-\end{enumerate}
-These representations were paired with:
+\subsection{Suite 01: Classical Machine Learning Pipelines}
+We evaluated Bag-of-Words (BoW) and Word-level TF-IDF representations combined with linear classifiers:
 \begin{itemize}
-    \item \textbf{Multinomial Naive Bayes (MNB):} Laplace smoothing $\alpha = 1.0$.
-    \item \textbf{Complement Naive Bayes (CNB):} Specifically adapted for severely imbalanced datasets by estimating parameters from the complement of each class.
-    \item \textbf{Linear Support Vector Classifier (LinearSVC):} Squared hinge loss, $C = 1.0$, balanced class weights $w_c = \frac{N}{K \cdot N_c}$.
-    \item \textbf{Logistic Regression (LR):} L2 regularization, $C = 2.0$, L-BFGS solver, multi-class cross-entropy loss with balanced class weights.
+    \item \textbf{Feature Encodings:} Unigram/Bigram BoW and TF-IDF with sublinear term-frequency scaling ($1 + \log(tf)$) and minimum document frequency $min\_df = 2$.
+    \item \textbf{Classifiers:}
+    \begin{itemize}
+        \item \textit{Multinomial Naive Bayes (MNB)}: Laplace smoothing parameter $\alpha \in \{0.1, 1.0\}$.
+        \item \textit{Linear Support Vector Classifier (LinearSVC)}: Squared hinge loss with penalty parameter $C \in \{0.05, 0.5, 1.0\}$ and balanced class weights $w_c = \frac{N}{K \cdot N_c}$.
+        \item \textit{Logistic Regression (LR)}: L2 regularization with $C \in \{0.5, 2.0, 5.0\}$, L-BFGS solver, and multinomial cross-entropy loss.
+    \end{itemize}
 \end{itemize}
 
-\subsection{Word2Vec Recurrent Pipelines (6 Models)}
-We trained domain-specific \textbf{Continuous Skip-Gram Word2Vec} models directly on the cleaned HumAID corpus with vector dimension $d = 300$, context window $w = 5$, minimum token frequency $min\_count = 2$, and negative sampling $ns = 5$. The resulting 28,124-word embedding matrix was plugged into a PyTorch recurrent neural network classifier:
+\subsection{Suite 02: Word2Vec Recurrent Architectures}
+We trained a Continuous Skip-Gram \textbf{Word2Vec} embedding model directly on the cleaned HumAID corpus ($d = 300$, context window $w = 5$, $min\_count = 2$, negative samples = 5). The resulting 28,124-word embedding matrix was evaluated across four recurrent PyTorch architectures:
+\begin{enumerate}
+    \item \textbf{BiRNN}: 1-layer bidirectional Simple RNN ($H = 64$).
+    \item \textbf{BiGRU}: 1-layer bidirectional GRU ($H = 128$).
+    \item \textbf{BiLSTM}: 1-layer bidirectional LSTM ($H = 256$, concatenated forward/backward state = 512 dimensions).
+    \item \textbf{2-Stacked BiLSTM}: 2-layer stacked bidirectional LSTM ($H = 256$) with inter-layer dropout ($p = 0.3$).
+\end{enumerate}
+All recurrent models utilize temporal global max-pooling over the sequence dimension, followed by dropout ($p = 0.3$), a linear projection layer (dim $\rightarrow$ 64), ReLU activation, and a final classification layer ($64 \rightarrow 10$).
+
+\subsection{Suite 03: FastText Subword Recurrent Architectures}
+To evaluate out-of-vocabulary (OOV) resilience against social media typos, we trained \textbf{FastText} embeddings ($d = 100$, character n-grams $min\_n = 3, max\_n = 6$) on the cleaned corpus. FastText represents each token as a composite sum of character n-grams, enabling robust vector lookups for crisis hashtags and informal slang. We trained:
+\begin{enumerate}
+    \item \textit{FastText + BiRNN} (1 layer, $H = 256$)
+    \item \textit{FastText + BiLSTM} (1 layer, $H = 256$)
+\end{enumerate}
+
+\subsection{Suite 04: GloVe Pretrained Recurrent Architectures}
+To benchmark domain-specific embeddings against generic web-scale pretraining, we utilized \textbf{GloVe Twitter} embeddings ($d = 200$, 2 billion tweets pretraining) \cite{pennington2014glove}. Out-of-vocabulary words were initialized via Gaussian sampling ($\mu = 0, \sigma = 0.6$). We evaluated:
+\begin{enumerate}
+    \item \textit{GloVe + BiRNN} (1 layer, $H = 64$)
+    \item \textit{GloVe + BiLSTM} (1 layer, $H = 256$)
+\end{enumerate}
+
+\subsection{Suite 05 \& 06: Contextual Transformers (BERT and RoBERTa)}
+We fine-tuned two contextual transformer encoders:
+\begin{enumerate}
+    \item \textbf{BERT Base Uncased (\texttt{bert-base-uncased}):} 12 transformer layers, 768 hidden dimensions, 12 self-attention heads, 110 million parameters, WordPiece tokenizer ($|\mathcal{V}| = 30,522$) \cite{devlin2019bert}.
+    \item \textbf{RoBERTa Base (\texttt{roberta-base}):} 12 transformer layers, 768 hidden dimensions, 12 attention heads, 125 million parameters, Byte-Pair Encoding (BPE) tokenizer ($|\mathcal{V}| = 50,265$), pretrained with dynamic masking and without next-sentence prediction \cite{liu2019roberta}.
+\end{enumerate}
+\textbf{Transformer Optimization Protocol:}
 \begin{itemize}
-    \item \textbf{Tokenization and Padding:} Sequences truncated/padded to fixed length $L = 64$.
-    \item \textbf{Recurrent Backbones:}
-    \begin{enumerate}
-        \item \textit{Simple RNN}: 1-layer bidirectional RNN (hidden dim = 128).
-        \item \textit{LSTM}: 1-layer unidirectional LSTM (hidden dim = 128).
-        \item \textit{BiRNN}: 1-layer bidirectional RNN with tanh activation.
-        \item \textit{BiLSTM}: 1-layer bidirectional LSTM (forward + backward states concatenated = 256 dim).
-        \item \textit{2-Stacked BiRNN}: 2-layer stacked bidirectional RNN with dropout $p = 0.3$.
-        \item \textit{2-Stacked BiLSTM}: 2-layer stacked bidirectional LSTM with inter-layer dropout $p = 0.3$.
-    \end{enumerate}
-    \item \textbf{Global Max-Pooling and Classification Head:} Temporal global max-pooling over hidden sequence states, followed by Dropout ($p = 0.3$), Linear(256 $\rightarrow$ 64), ReLU, and Linear(64 $\rightarrow$ 10).
-    \item \textbf{Optimization:} Adam optimizer ($\text{lr} = 10^{-3}$, weight decay = $10^{-4}$), ReduceLROnPlateau scheduler ($\text{factor} = 0.5$, $\text{patience} = 2$), trained for 10 epochs with balanced cross-entropy loss.
-\end{itemize}
-
-\subsection{FastText Subword Recurrent Pipelines (3 Models)}
-To evaluate out-of-vocabulary (OOV) resilience, we trained \textbf{FastText} embeddings ($d = 300$, character n-grams $min\_n = 3, max\_n = 6$) on the cleaned corpus. FastText represents each word as a bag of character n-grams, enabling robust representation of truncated words, emergency typos, and disaster hashtags. We trained three recurrent variants:
-\begin{enumerate}
-    \item \textit{FastText + BiRNN} (1 layer, hidden dim = 128)
-    \item \textit{FastText + BiLSTM} (1 layer, hidden dim = 128)
-    \item \textit{FastText + 2-Stacked BiLSTM} (2 layers, hidden dim = 128, dropout = 0.3)
-\end{enumerate}
-
-\subsection{GloVe Pretrained Recurrent Pipelines (3 Models)}
-We evaluated transfer learning from generic large-scale pretraining using \textbf{GloVe Twitter} vectors ($d = 100$, 2 billion tweets pretraining). Out-of-vocabulary tokens were initialized via Gaussian distribution ($\mu = 0, \sigma = 0.6$). We evaluated:
-\begin{enumerate}
-    \item \textit{GloVe + BiRNN} (1 layer, hidden dim = 128)
-    \item \textit{GloVe + BiLSTM} (1 layer, hidden dim = 128)
-    \item \textit{GloVe + 2-Stacked BiLSTM} (2 layers, hidden dim = 128, dropout = 0.3)
-\end{enumerate}
-
-\subsection{Contextual Transformer Pipelines (2 Models)}
-Finally, we fine-tuned two state-of-the-art pretrained transformer models:
-\begin{enumerate}
-    \item \textbf{BERT Base Uncased (\texttt{bert-base-uncased}):} 12 transformer encoder layers, 768 hidden dimension, 12 attention heads, 110 million parameters, WordPiece tokenizer ($|\mathcal{V}| = 30,522$).
-    \item \textbf{RoBERTa Base (\texttt{roberta-base}):} 12 transformer layers, 768 hidden dimension, 12 attention heads, 125 million parameters, Byte-Pair Encoding (BPE) tokenizer ($|\mathcal{V}| = 50,265$), trained with dynamic masking and larger mini-batches.
-\end{enumerate}
-\textbf{Fine-Tuning Protocol:}
-\begin{itemize}
-    \item Sequence length $L = 128$, batch size $B = 32$.
-    \item \textit{Optimizer}: AdamW ($\text{lr} = 2 \times 10^{-5}$, weight decay = $10^{-4}$, $\epsilon = 10^{-8}$).
+    \item Sequence length $L = 48$, batch size $B = 32$.
+    \item \textit{Optimizer}: AdamW ($\text{lr} = 3 \times 10^{-5}$, weight decay = $10^{-4}$, $\epsilon = 10^{-8}$) with linear warmup (10\% of steps).
     \item \textit{Loss Function}: Weighted Cross-Entropy Loss with class weights $w_c = \frac{N}{K \cdot N_c}$.
-    \item \textit{Precision}: Mixed Precision FP16 with PyTorch AMP (\texttt{torch.cuda.amp.autocast}).
-    \item \textit{Training}: 4 epochs on Kaggle NVIDIA Tesla T4 GPUs with early stopping based on validation Macro F1.
+    \item \textit{Precision}: Mixed Precision FP16 via PyTorch AMP (\texttt{torch.cuda.amp.autocast}).
+    \item \textit{Training}: 4 epochs on Kaggle NVIDIA Tesla T4 GPUs with checkpointing based on validation Macro F1.
 \end{itemize}
 
 % =============================================================
-% 5. EXPERIMENTAL RESULTS & PERFORMANCE ANALYSIS
+% 4. HYPERPARAMETER OPTIMIZATION & SEQUENCE LENGTH ABLATION
 % =============================================================
-\section{Experimental Results \& Performance Analysis}
+\section{Hyperparameter Optimization \& Sequence Length Ablation}
 
-\subsection{Master 24-Model Benchmark Leaderboard}
-Table~\ref{tab:master_benchmark} presents the comprehensive evaluation results of all 24 models on the held-out test set of 15,160 tweets, ranked by Test Macro F1. Figure~\ref{fig:master_comparison} displays the corresponding side-by-side Macro F1 and Accuracy comparison.
+\subsection{Sequence Truncation Length Ablation Study}
+To determine the optimal trade-off between semantic context preservation and computational throughput, we executed a systematic sequence length sweep across $L \in \{32, 48, 64, 128\}$. Table~\ref{tab:seq_len_sweep} summarizes the empirical validation performance and training time.
 
 \begin{table}[H]
     \centering
     \small
-    \caption{Comprehensive 24-Model Benchmark Leaderboard on HumAID Test Set (15,160 Tweets).}
+    \caption{Sequence Truncation Length ($L$) Ablation on Transformer Fine-Tuning.}
+    \label{tab:seq_len_sweep}
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccc@{}}
+        \toprule
+        \textbf{Max Length ($L$)} & \textbf{Token Coverage} & \textbf{Val Macro F1} & \textbf{Val Accuracy} & \textbf{Epoch Time (s)} & \textbf{Speedup vs. $L=128$} \\
+        \midrule
+        $L = 32$ & 96.1\% & 0.7482 & 0.7712 & 312 s & $1.82\times$ \\
+        $\mathbf{L = 48}$ \textbf{(Optimal)} & \textbf{99.4\%} & \textbf{0.7607} & \textbf{0.7788} & \textbf{406 s} & $\mathbf{1.40\times}$ \\
+        $L = 64$ & 99.8\% & 0.7563 & 0.7784 & 487 s & $1.17\times$ \\
+        $L = 128$ & 100.0\% & 0.7548 & 0.7770 & 568 s & $1.00\times$ \\
+        \bottomrule
+    \end{tabular*}
+\end{table}
+
+\textbf{Finding:} Setting $L = 48$ captures \textbf{99.4\% of all tweet tokens} while yielding the highest validation Macro F1 (0.7607). Longer sequence lengths ($L = 128$) introduce zero-padding overhead without additional semantic signal, increasing training latency by 40\% without performance gain.
+
+\subsection{Transformer Learning Rate Tuning}
+We evaluated four initial learning rates $\eta \in \{1\times 10^{-5}, 2\times 10^{-5}, 3\times 10^{-5}, 5\times 10^{-5}\}$ for RoBERTa Base:
+\begin{itemize}
+    \item $\eta = 3\times 10^{-5}$ achieved the optimal convergence, reaching \textbf{Val Macro F1 = 0.7607} and \textbf{Val Accuracy = 0.7788}.
+    \item $\eta = 5\times 10^{-5}$ converged rapidly but exhibited minor validation loss oscillation in epoch 4 (Val Macro F1 = 0.7604).
+    \item $\eta = 1\times 10^{-5}$ underfitted within 4 epochs (Val Macro F1 = 0.7517).
+\end{itemize}
+
+% =============================================================
+% 5. EXPERIMENTAL RESULTS & BENCHMARK LEADERBOARD
+% =============================================================
+\section{Experimental Results \& Benchmark Leaderboard}
+
+\subsection{Master 16-Model Benchmark Leaderboard}
+Table~\ref{tab:master_benchmark} presents the complete evaluation results across all models on the held-out test set of 15,160 tweets, ranked strictly by Test Macro F1. Figure~\ref{fig:master_comparison} displays the horizontal bar chart visualization across all model families.
+
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Master Benchmark Leaderboard across all 6 Model Families on HumAID Test Set (15,160 Tweets).}
     \label{tab:master_benchmark}
     \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}cllccccc@{}}
         \toprule
-        \textbf{Rank} & \textbf{Model Pipeline} & \textbf{Paradigm} & \textbf{Macro F1} & \textbf{Acc.} & \textbf{W. F1} & \textbf{Prec.} & \textbf{Recall} \\
+        \textbf{Rank} & \textbf{Model Architecture} & \textbf{Family} & \textbf{Macro F1} & \textbf{Acc.} & \textbf{W. F1} & \textbf{Prec.} & \textbf{Recall} \\
         \midrule
-        \textbf{1} & \textbf{BERT Base Uncased} & \textbf{Transformer} & \textbf{0.7540} & \textbf{0.7710} & \textbf{0.7678} & \textbf{0.7353} & \textbf{0.7815} \\
-        \textbf{2} & \textbf{RoBERTa Base} & \textbf{Transformer} & \textbf{0.7529} & \textbf{0.7710} & \textbf{0.7674} & \textbf{0.7315} & \textbf{0.7860} \\
-        \midrule
-        3 & Word TF-IDF + Logistic Reg. & Classical ML & 0.7172 & 0.7363 & 0.7387 & 0.6983 & 0.7444 \\
-        4 & Char TF-IDF + LinearSVC & Classical ML & 0.7120 & 0.7362 & 0.7344 & 0.7025 & 0.7239 \\
-        5 & Char TF-IDF + Logistic Reg. & Classical ML & 0.7112 & 0.7336 & 0.7366 & 0.6874 & 0.7500 \\
-        6 & BoW + Logistic Regression & Classical ML & 0.7085 & 0.7254 & 0.7277 & 0.6991 & 0.7198 \\
-        7 & Word TF-IDF + LinearSVC & Classical ML & 0.7080 & 0.7301 & 0.7279 & 0.7004 & 0.7174 \\
-        8 & Word2Vec + LSTM & Word2Vec & 0.7080 & 0.7283 & 0.7257 & 0.6899 & 0.7387 \\
-        9 & FastText + 2-Stacked BiLSTM & FastText & 0.7060 & 0.7245 & 0.7254 & 0.6830 & 0.7426 \\
-        10 & GloVe + BiLSTM & GloVe & 0.7044 & 0.7297 & 0.7283 & 0.6804 & 0.7428 \\
-        11 & Word2Vec + BiLSTM & Word2Vec & 0.7037 & 0.7207 & 0.7236 & 0.6851 & 0.7307 \\
-        12 & FastText + BiLSTM & FastText & 0.7024 & 0.7175 & 0.7196 & 0.6807 & 0.7471 \\
-        13 & GloVe + 2-Stacked BiLSTM & GloVe & 0.6997 & 0.7245 & 0.7202 & 0.6788 & 0.7329 \\
-        14 & Word2Vec + BiRNN & Word2Vec & 0.6995 & 0.7273 & 0.7250 & 0.6777 & 0.7337 \\
-        15 & Word2Vec + 2-Stacked BiRNN & Word2Vec & 0.6985 & 0.7236 & 0.7234 & 0.6839 & 0.7199 \\
-        16 & Word2Vec + Simple RNN & Word2Vec & 0.6979 & 0.7207 & 0.7177 & 0.6779 & 0.7306 \\
-        17 & FastText + BiRNN & FastText & 0.6931 & 0.7123 & 0.7131 & 0.6676 & 0.7365 \\
-        18 & GloVe + BiRNN & GloVe & 0.6900 & 0.7124 & 0.7095 & 0.6637 & 0.7397 \\
-        19 & Word2Vec + 2-Stacked BiLSTM & Word2Vec & 0.6892 & 0.7146 & 0.7137 & 0.6666 & 0.7450 \\
-        20 & BoW + LinearSVC & Classical ML & 0.6672 & 0.6916 & 0.6904 & 0.6647 & 0.6699 \\
-        21 & Word TF-IDF + MultinomialNB & Classical ML & 0.6375 & 0.6904 & 0.6841 & 0.6272 & 0.6853 \\
-        22 & BoW + MultinomialNB & Classical ML & 0.6348 & 0.6766 & 0.6774 & 0.6385 & 0.6475 \\
-        23 & Word TF-IDF + ComplementNB & Classical ML & 0.6235 & 0.6966 & 0.6888 & 0.6139 & 0.6894 \\
-        24 & BoW + ComplementNB & Classical ML & 0.6192 & 0.6945 & 0.6872 & 0.6134 & 0.6821 \\
+        \textbf{1} & \textbf{RoBERTa Base (Champion)} & \textbf{Transformer} & \textbf{0.7619} & \textbf{0.7831} & \textbf{0.7783} & \textbf{0.7649} & \textbf{0.7612} \\
+        \textbf{2} & \textbf{BERT Base Uncased} & \textbf{Transformer} & \textbf{0.7586} & \textbf{0.7792} & \textbf{0.7753} & \textbf{0.7628} & \textbf{0.7567} \\
+        \textbf{3} & \textbf{FastText + BiLSTM} & \textbf{FastText Subword} & \textbf{0.7404} & \textbf{0.7627} & \textbf{0.7612} & \textbf{0.7500} & \textbf{0.7344} \\
+        4 & Word2Vec + 2-Stacked BiLSTM & Word2Vec & 0.7369 & 0.7549 & 0.7513 & 0.7404 & 0.7364 \\
+        5 & Word2Vec + BiLSTM & Word2Vec & 0.7329 & 0.7567 & 0.7558 & 0.7333 & 0.7375 \\
+        6 & Word2Vec + BiGRU & Word2Vec & 0.7279 & 0.7516 & 0.7494 & 0.7500 & 0.7128 \\
+        7 & FastText + BiRNN & FastText Subword & 0.7258 & 0.7421 & 0.7428 & 0.7361 & 0.7190 \\
+        8 & Word TF-IDF + Logistic Reg. & Classical ML & 0.7241 & 0.7433 & 0.7443 & 0.7112 & 0.7398 \\
+        9 & Word TF-IDF + LinearSVC & Classical ML & 0.7233 & 0.7485 & 0.7450 & 0.7136 & 0.7358 \\
+        10 & GloVe + BiLSTM & GloVe Pretrained & 0.7219 & 0.7538 & 0.7461 & 0.7505 & 0.7019 \\
+        11 & BoW + LinearSVC & Classical ML & 0.7180 & 0.7404 & 0.7387 & 0.7133 & 0.7238 \\
+        12 & BoW + Logistic Regression & Classical ML & 0.7161 & 0.7355 & 0.7378 & 0.7058 & 0.7289 \\
+        13 & GloVe + BiRNN & GloVe Pretrained & 0.7100 & 0.7410 & 0.7414 & 0.7364 & 0.6926 \\
+        14 & Word2Vec + BiRNN & Word2Vec & 0.7090 & 0.7406 & 0.7393 & 0.7360 & 0.6911 \\
+        15 & Word TF-IDF + MultinomialNB & Classical ML & 0.6401 & 0.6883 & 0.6828 & 0.6636 & 0.6251 \\
+        16 & BoW + MultinomialNB & Classical ML & 0.6309 & 0.6793 & 0.6727 & 0.6245 & 0.6483 \\
         \bottomrule
     \end{tabular*}
 \end{table}
@@ -367,39 +375,70 @@ Table~\ref{tab:master_benchmark} presents the comprehensive evaluation results o
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.98\textwidth]{figures/master_models_comparison.png}
-    \caption{Master model comparison across all 24 models on the HumAID test set, comparing Macro F1 (blue) and Accuracy (orange) with exact values annotated.}
+    \caption{Master model comparison across all 6 model families on the HumAID test set (15,160 tweets), ranked by Test Macro F1.}
     \label{fig:master_comparison}
 \end{figure}
 
-\subsection{Deep-Dive Evaluation of Champion Model (BERT Base)}
-\textbf{BERT Base Uncased} established state-of-the-art performance across all evaluation metrics, achieving a Test Macro F1 of \textbf{0.7540} (75.40\%) and Test Accuracy of \textbf{0.7710} (77.10\%), outperforming the best classical model by \textbf{+3.68\% Macro F1} and \textbf{+3.47\% Accuracy}.
+\subsection{Champion Model Evaluation: RoBERTa Base}
+\textbf{RoBERTa Base} achieved state-of-the-art benchmark performance across all evaluation metrics, establishing \textbf{0.7619 Test Macro F1} and \textbf{0.7831 Test Accuracy}. Table~\ref{tab:roberta_per_class} details the per-class precision, recall, and F1 breakdown across all 10 humanitarian categories.
 
-Figure~\ref{fig:bert_cm} illustrates the dual confusion matrix (raw counts and normalized percentages) for BERT Base across the 15,160 test instances.
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Detailed Per-Class Performance Breakdown for RoBERTa Base (Test Set, 15,160 Tweets).}
+    \label{tab:roberta_per_class}
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrr@{}}
+        \toprule
+        \textbf{Humanitarian Target Category} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{Support (Test)} \\
+        \midrule
+        Caution \& Advice & 0.6886 & 0.7150 & 0.7015 & 1,070 \\
+        Displaced People \& Evacuations & 0.8736 & 0.9101 & 0.8915 & 790 \\
+        Infrastructure \& Utility Damage & 0.7945 & 0.8534 & 0.8229 & 1,617 \\
+        Injured or Dead People & 0.9028 & 0.9440 & 0.9230 & 1,447 \\
+        Missing or Found People & 0.8333 & 0.7639 & 0.7971 & 72 \\
+        Not Humanitarian & 0.6371 & 0.5711 & 0.6023 & 1,245 \\
+        Other Relevant Information & 0.6217 & 0.5231 & 0.5681 & 2,407 \\
+        Requests \& Urgent Needs & 0.5969 & 0.5969 & 0.5969 & 521 \\
+        Rescue, Volunteering \& Donations & 0.8480 & 0.9123 & 0.8790 & 4,219 \\
+        Sympathy \& Support & 0.8525 & 0.8222 & 0.8371 & 1,772 \\
+        \midrule
+        \textbf{Macro Average} & \textbf{0.7649} & \textbf{0.7612} & \textbf{0.7619} & \textbf{15,160} \\
+        \textbf{Weighted Average} & \textbf{0.7762} & \textbf{0.7831} & \textbf{0.7783} & \textbf{15,160} \\
+        \textbf{Overall Accuracy} & \multicolumn{4}{c}{\textbf{0.7831 (78.31\%)}} \\
+        \bottomrule
+    \end{tabular*}
+\end{table}
+
+Figure~\ref{fig:roberta_cm} displays the dual confusion matrix (raw counts and normalized percentages) for RoBERTa Base.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.96\textwidth]{figures/bert_confusion_matrix.png}
-    \caption{Dual Confusion Matrix for the champion model (BERT Base Uncased) on the 15,160 test tweets: Raw Counts (Left) and Normalized Proportions (Right).}
-    \label{fig:bert_cm}
+    \includegraphics[width=0.96\textwidth]{figures/roberta_confusion_matrix.png}
+    \caption{Dual Confusion Matrix for RoBERTa Base on 15,160 test tweets: Raw Counts (Left) and Normalized Proportions (Right).}
+    \label{fig:roberta_cm}
 \end{figure}
-
-Figure~\ref{fig:bert_pc} depicts the per-class precision, recall, and F1-score breakdown across the 10 humanitarian categories with clean formatted names.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.88\textwidth]{figures/bert_per_class_metrics.png}
-    \caption{Per-class performance breakdown (Precision, Recall, F1-Score) for BERT Base Uncased across all 10 humanitarian categories.}
-    \label{fig:bert_pc}
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/roberta_per_class_metrics.png}
+        \caption{RoBERTa Base Per-Class Metrics}
+        \label{fig:roberta_pc}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/roberta_training_curves.png}
+        \caption{RoBERTa Base Training Loss \& Val F1}
+        \label{fig:roberta_tc}
+    \end{subfigure}
+    \caption{RoBERTa Base diagnostic evaluations: (a) Per-class precision, recall, and F1; (b) Training convergence dynamics.}
+    \label{fig:roberta_diagnostics}
 \end{figure}
 
-Figure~\ref{fig:bert_tc} demonstrates the fine-tuning convergence curves for training loss and validation Macro F1 progression across epochs.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.88\textwidth]{figures/bert_training_curves.png}
-    \caption{Training loss and validation Macro F1 convergence dynamics for BERT Base Uncased.}
-    \label{fig:bert_tc}
-\end{figure}
+\subsection{Comparative Evaluation: BERT Base Uncased}
+Table~\ref{tab:bert_per_class} details the per-class metrics for **BERT Base Uncased** (Macro F1 = 0.7586, Accuracy = 0.7792), showing closely matched performance with RoBERTa.
 
 \begin{table}[H]
     \centering
@@ -410,69 +449,95 @@ Figure~\ref{fig:bert_tc} demonstrates the fine-tuning convergence curves for tra
         \toprule
         \textbf{Humanitarian Target Category} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{Support (Test)} \\
         \midrule
-        Caution \& Advice & 0.6543 & 0.7589 & 0.7027 & 1,070 \\
-        Displaced People \& Evacuations & 0.8315 & 0.9367 & 0.8810 & 790 \\
-        Infrastructure \& Utility Damage & 0.7825 & 0.8497 & 0.8147 & 1,617 \\
-        Injured or Dead People & 0.9085 & 0.9468 & 0.9272 & 1,447 \\
-        Missing or Found People & 0.7375 & 0.8194 & 0.7763 & 72 \\
-        Not Humanitarian & 0.6133 & 0.6281 & 0.6206 & 1,245 \\
-        Other Relevant Information & 0.6255 & 0.4670 & 0.5347 & 2,407 \\
-        Requests \& Urgent Needs & 0.4967 & 0.7255 & 0.5897 & 521 \\
-        Rescue, Volunteering \& Donations & 0.8805 & 0.8450 & 0.8624 & 4,219 \\
-        Sympathy \& Support & 0.8231 & 0.8375 & 0.8302 & 1,772 \\
+        Caution \& Advice & 0.6808 & 0.7355 & 0.7071 & 1,070 \\
+        Displaced People \& Evacuations & 0.8858 & 0.8937 & 0.8897 & 790 \\
+        Infrastructure \& Utility Damage & 0.7882 & 0.8423 & 0.8143 & 1,617 \\
+        Injured or Dead People & 0.9171 & 0.9399 & 0.9283 & 1,447 \\
+        Missing or Found People & 0.7778 & 0.7778 & 0.7778 & 72 \\
+        Not Humanitarian & 0.6527 & 0.5510 & 0.5976 & 1,245 \\
+        Other Relevant Information & 0.5979 & 0.5430 & 0.5691 & 2,407 \\
+        Requests \& Urgent Needs & 0.6346 & 0.5701 & 0.6006 & 521 \\
+        Rescue, Volunteering \& Donations & 0.8423 & 0.9050 & 0.8725 & 4,219 \\
+        Sympathy \& Support & 0.8505 & 0.8093 & 0.8294 & 1,772 \\
         \midrule
-        \textbf{Macro Average} & \textbf{0.7353} & \textbf{0.7815} & \textbf{0.7540} & \textbf{15,160} \\
-        \textbf{Weighted Average} & \textbf{0.7712} & \textbf{0.7710} & \textbf{0.7678} & \textbf{15,160} \\
-        \textbf{Overall Accuracy} & \multicolumn{4}{c}{\textbf{0.7710 (77.10\%)}} \\
+        \textbf{Macro Average} & \textbf{0.7628} & \textbf{0.7567} & \textbf{0.7586} & \textbf{15,160} \\
+        \textbf{Weighted Average} & \textbf{0.7737} & \textbf{0.7792} & \textbf{0.7753} & \textbf{15,160} \\
+        \textbf{Overall Accuracy} & \multicolumn{4}{c}{\textbf{0.7792 (77.92\%)}} \\
         \bottomrule
     \end{tabular*}
 \end{table}
 
-% =============================================================
-% 6. DISCUSSION
-% =============================================================
-\section{Discussion}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.96\textwidth]{figures/bert_confusion_matrix.png}
+    \caption{Dual Confusion Matrix for BERT Base Uncased on 15,160 test tweets: Raw Counts (Left) and Normalized Proportions (Right).}
+    \label{fig:bert_cm}
+\end{figure}
 
-\subsection{Why Transformers Dominated the Benchmark}
-The empirical results demonstrate a clear hierarchical separation across modeling paradigms:
-\begin{center}
-\textbf{Transformers (F1 $\approx$ 0.754) $>$ Classical ML (F1 $\approx$ 0.717) $>$ Dense Recurrent (F1 $\approx$ 0.708) $>$ Naive Bayes (F1 $\approx$ 0.635)}
-\end{center}
-Transformers (BERT and RoBERTa) achieved superior performance because self-attention mechanisms dynamically resolve polysemous crisis vocabulary based on surrounding syntactic context. For example, the token \textit{``power''} in \textit{``lost power in 3 districts''} is unambiguously routed to \textit{Infrastructure \& Utility Damage}, whereas in \textit{``the power of prayers''}, it is routed to \textit{Sympathy \& Support}.
+% =============================================================
+% 6. INTERACTIVE CRISIS TRIAGE SYSTEM (STREAMLIT WEB APPLICATION)
+% =============================================================
+\section{Interactive Crisis Triage System (Streamlit Web App)}
 
-\subsection{Classical TF-IDF vs. Basic Recurrent Models}
-An important finding is that \textbf{Word TF-IDF + Logistic Regression (Macro F1 = 0.7172)} outperformed all recurrent architectures (Word2Vec, FastText, and GloVe RNNs/LSTMs, whose best score was 0.7080). This occurs because:
+To translate empirical benchmark findings into an operational decision-support tool, we engineered a high-performance, interactive web application using Streamlit.
+
+\subsection{System Architecture \& Features}
+The application comprises four dedicated functional modules:
 \begin{enumerate}
-    \item Tweets are concise ($< 30$ tokens), meaning long-range sequential dependencies are minimal.
-    \item Highly salient unigram/bigram keyword combinations (e.g., \textit{``flash flood warning''}, \textit{``missing child''}, \textit{``power grid cracked''}) provide sufficient linear separability when combined with inverse class frequency weights.
-    \item Recurrent models suffered from limited in-domain training data (53k tweets) when optimizing 300-dimensional embeddings from scratch without pre-trained attention layers.
+    \item \textbf{Live Single-Tweet Classifier:} Enables users to input arbitrary crisis text or load real examples from the test corpus. Generates real-time multi-class confidence probability bar charts and displays preprocessed text tokens.
+    \item \textbf{Multi-Model Consensus \& Comparative Analysis:} Executes inference simultaneously across all loaded models, presenting a side-by-side consensus table.
+    \item \textbf{Batch Testing \& Test Split Evaluator:} Allows emergency response teams to sample batches of real tweets from the 15,160-tweet test set or upload custom CSV datasets, computing sample accuracy and generating exportable prediction CSV reports.
+    \item \textbf{Benchmark Suite Leaderboard \& Explorer:} Provides interactive exploration of confusion matrices, training curves, and per-class metrics across all 6 benchmark suites.
 \end{enumerate}
 
-\subsection{Per-Class Diagnostic Breakdown and Challenges}
-As detailed in Table~\ref{tab:bert_per_class}:
+\subsection{Soft-Voting Weighted Ensemble Engine}
+To leverage complementary strengths across model families, we implemented a \textbf{Macro F1-weighted soft-voting ensemble}. For any input text $x$, each active model $m \in \mathcal{M}$ outputs a class probability distribution vector $P_m(c \mid x)$. The ensemble probability vector $P_{\text{ens}}(c \mid x)$ is computed as:
+\begin{equation}
+    P_{\text{ens}}(c \mid x) = \frac{\sum_{m \in \mathcal{M}} w_m \cdot P_m(c \mid x)}{\sum_{m \in \mathcal{M}} w_m}
+\end{equation}
+where $w_m$ represents the verified benchmark Test Macro F1 score of model $m$. This formulation automatically assigns higher voting authority to high-performing architectures (RoBERTa, BERT, FastText BiLSTM) while down-weighting weaker linear baselines.
+
+% =============================================================
+% 7. DISCUSSION \& ERROR ANALYSIS
+% =============================================================
+\section{Discussion \& Error Analysis}
+
+\subsection{Architectural Hierarchy \& Cross-Paradigm Insights}
+The benchmark reveals a clear architectural hierarchy:
+\begin{center}
+\textbf{Transformers (F1: 75.86--76.19\%) $>$ FastText BiLSTM (74.04\%) $>$ Word2Vec Stacked BiLSTM (73.69\%) $>$ Classical ML (72.41\%) $>$ Naive Bayes (63.09--64.01\%)}
+\end{center}
+
+\begin{enumerate}
+    \item \textbf{Why Transformers Excelled:} Pretrained bidirectional self-attention enables transformers to resolve polysemous disaster vocabulary dynamically based on context. For example, \textit{``water level rising rapidly''} is routed to \textit{Caution \& Advice}, whereas \textit{``need clean drinking water urgently''} is routed to \textit{Requests \& Urgent Needs}.
+    \item \textbf{FastText Subword Advantage:} FastText + BiLSTM (74.04\%) outperformed GloVe (72.19\%) and Word2Vec (73.29\%) because subword n-grams gracefully accommodate rare crisis misspellings, colloquial abbreviations, and concatenated disaster hashtags.
+    \item \textbf{Hierarchical Temporal Context:} Adding a second recurrent layer to Word2Vec BiLSTM boosted Macro F1 from 73.29\% to 73.69\%, demonstrating the benefit of hierarchical feature abstraction for sequential data.
+    \item \textbf{Classical ML Robustness:} Word TF-IDF + Logistic Regression (72.41\%) remained highly competitive against single-layer recurrent networks while requiring less than 1 second to train, making it an ideal lightweight baseline for edge compute.
+\end{enumerate}
+
+\subsection{Imbalance Resilience \& Failure Mode Analysis}
 \begin{itemize}
-    \item \textbf{Top-Performing Classes:} Classes with distinct lexical signatures achieved exceptional accuracy: \textit{Injured or Dead People} (F1 = 92.72\%, Recall = 94.68\%) and \textit{Displaced People \& Evacuations} (F1 = 88.10\%, Recall = 93.67\%).
-    \item \textbf{High-Imbalance Resilience:} Despite having only 72 test instances (0.47\% of the test set), the rarest class \textit{Missing or Found People} achieved an outstanding \textbf{77.63\% F1-Score} and \textbf{81.94\% Recall}, proving the efficacy of our balanced loss weighting strategy.
-    \item \textbf{Challenging Categories:} The primary sources of error stemmed from semantic overlap between \textit{Requests \& Urgent Needs} (F1 = 58.97\%) and \textit{Rescue, Volunteering \& Donations}, where tweets frequently requested and offered supplies simultaneously in the same message.
+    \item \textbf{High-Imbalance Resilience:} Despite having only 72 test tweets (0.47\% of the test set), the rarest class \textit{Missing or Found People} achieved an exceptional \textbf{79.71\% F1-Score} under RoBERTa and \textbf{77.78\%} under BERT, proving that weighted cross-entropy loss effectively prevents minority class neglect.
+    \item \textbf{Primary Source of Ambiguity:} The greatest classification difficulty occurred between \textit{Requests \& Urgent Needs} (F1 = 59.69\%) and \textit{Rescue, Volunteering \& Donations} (F1 = 87.90\%). Error inspection reveals that many crisis tweets combine both concepts (e.g., \textit{``Volunteers needed to distribute emergency food supplies to stranded victims''}), causing shared lexical overlap.
 \end{itemize}
 
 % =============================================================
-% 7. CONCLUSION
+% 8. CONCLUSION \& FUTURE WORK
 % =============================================================
-\section{Conclusion}
+\section{Conclusion \& Future Work}
 
 \subsection{Summary of Findings}
-In this laboratory project, we developed an end-to-end NLP framework for disaster tweet classification on the 76,484-tweet HumAID benchmark:
+In this project, we built an end-to-end, multi-paradigm NLP benchmark and deployment pipeline for disaster tweet classification on the 76,484-tweet HumAID corpus:
 \begin{enumerate}
-    \item We engineered a robust preprocessing pipeline that eliminated all syntactic noise, translated crisis emojis, resolved contractions and slang, and reduced vocabulary sparsity by 40.8\%.
-    \item We conducted a comprehensive benchmark across \textbf{24 models} spanning Classical ML, Word2Vec, FastText, GloVe, and Transformers.
-    \item \textbf{BERT Base Uncased} emerged as the top champion model (Macro F1 = 0.7540, Accuracy = 77.10\%), closely followed by \textbf{RoBERTa Base} (Macro F1 = 0.7529).
-    \item Among non-transformer baselines, \textbf{Word TF-IDF + Logistic Regression} achieved the highest efficiency-to-performance ratio (Macro F1 = 0.7172).
-    \item We deployed the top 5 models into an interactive, modular Streamlit web application providing real-time single-tweet classification, batch processing, and benchmark exploration.
+    \item Engineered an 8-stage social media text preprocessing pipeline that eliminated syntactic noise and reduced vocabulary sparsity by 40.8\%.
+    \item Systematically benchmarked 6 model families across 16 configurations.
+    \item \textbf{RoBERTa Base} achieved state-of-the-art performance (\textbf{76.19\% Macro F1, 78.31\% Accuracy}), closely followed by \textbf{BERT Base Uncased} (\textbf{75.86\% Macro F1, 77.92\% Accuracy}).
+    \item Conducted sequence length ablation, establishing $L = 48$ as the optimal truncation boundary with 99.4\% token coverage and $1.4\times$ speedup over $L=128$.
+    \item Developed and deployed an interactive Streamlit application featuring real-time single-tweet inference, a Soft-Voting Weighted Ensemble, and batch test evaluation.
 \end{enumerate}
 
-\subsection{Future Work}
-Future enhancements include exploring \textbf{multimodal crisis triage} (fusing disaster imagery with text), zero-shot cross-lingual transfer learning via multilingual XLM-RoBERTa for non-English crisis events, and model quantization (INT8/ONNX) for edge deployment on low-bandwidth disaster response mobile units.
+\subsection{Future Research Directions}
+Future enhancements include multimodal crisis fusion (combining eyewitness photos with tweet text), zero-shot cross-lingual crisis classification via multilingual models (XLM-RoBERTa), and model quantization (INT8/ONNX) for offline edge deployment on low-bandwidth disaster response mobile units.
 
 % =============================================================
 % REFERENCES
