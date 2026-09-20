@@ -14,6 +14,7 @@
 
 # big model weights and artifacts
 results/05_transformer_bert/models/bert_base/best_model.pt
+results/06_transformer_roberta/models/roberta_base/best_model.pt
 
 /hyperparam-test
 /scratch

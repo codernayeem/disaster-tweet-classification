@@ -1,0 +1,2 @@
+Model,Optimal_LR,Optimal_Max_Len,Accuracy,Macro_F1,Weighted_F1,Precision,Recall,Latency_ms
+RoBERTa_Base,3e-05,48,0.7831,0.7619,0.7783,0.7649,0.7612,0.694

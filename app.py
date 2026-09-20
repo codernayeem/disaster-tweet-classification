@@ -300,7 +300,7 @@ def discover_available_models():
     if roberta_base_path.exists():
         catalog["RoBERTa Base"] = {
             "type": "transformer", "model_path": roberta_base_path, "hf_id": "roberta-base",
-            "macro_f1": 0.7650, "accuracy": 0.7850, "category": "Transformer (RoBERTa)", "dim": "768d"
+            "macro_f1": 0.7619, "accuracy": 0.7831, "category": "Transformer (RoBERTa)", "dim": "768d"
         }
 
     # 6. Multi-Model Weighted Ensemble (Macro F1 Weighted Average)

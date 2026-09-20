@@ -1,39 +1,33 @@
-# Master Model Comparison Leaderboard (HumAID Dataset - 24 Models)
+# HumAID Disaster Tweet Classification: Master Benchmark Leaderboard (All 6 Suites)
 
-Comprehensive comparative evaluation across 6 model families evaluated on the cleaned test set (15,160 tweets).
-
-| Rank | Model | Category | Test Macro F1 | Test Accuracy | Test Weighted F1 | Test Macro Precision | Test Macro Recall |
-|:---:|:---|:---|:---:|:---:|:---:|:---:|:---:|
-| **1** | **BERT Base Uncased** | `Transformer (BERT)` | **0.7540** | **0.7710** | 0.7678 | 0.7353 | 0.7815 |
-| **2** | **RoBERTa Base** | `Transformer (RoBERTa)` | **0.7529** | **0.7710** | 0.7674 | 0.7315 | 0.7860 |
-| **3** | **Word TF-IDF + LogisticRegression** | `Classical ML` | **0.7172** | **0.7363** | 0.7387 | 0.6983 | 0.7444 |
-| **4** | **Char TF-IDF + LinearSVC** | `Classical ML` | **0.7120** | **0.7362** | 0.7344 | 0.7025 | 0.7239 |
-| **5** | **Char TF-IDF + LogisticRegression** | `Classical ML` | **0.7112** | **0.7336** | 0.7366 | 0.6874 | 0.7500 |
-| **6** | **BoW + LogisticRegression** | `Classical ML` | **0.7085** | **0.7254** | 0.7277 | 0.6991 | 0.7198 |
-| **7** | **Word TF-IDF + LinearSVC** | `Classical ML` | **0.7080** | **0.7301** | 0.7279 | 0.7004 | 0.7174 |
-| **8** | **Word2Vec + LSTM** | `Word2Vec` | **0.7080** | **0.7283** | 0.7257 | 0.6899 | 0.7387 |
-| **9** | **FastText + 2-Stacked BiLSTM** | `FastText` | **0.7060** | **0.7245** | 0.7254 | 0.6830 | 0.7426 |
-| **10** | **GloVe + BiLSTM** | `GloVe` | **0.7044** | **0.7297** | 0.7283 | 0.6804 | 0.7428 |
-| **11** | **Word2Vec + BiLSTM** | `Word2Vec` | **0.7037** | **0.7207** | 0.7236 | 0.6851 | 0.7307 |
-| **12** | **FastText + BiLSTM** | `FastText` | **0.7024** | **0.7175** | 0.7196 | 0.6807 | 0.7471 |
-| **13** | **GloVe + 2-Stacked BiLSTM** | `GloVe` | **0.6997** | **0.7245** | 0.7202 | 0.6788 | 0.7329 |
-| **14** | **Word2Vec + BiRNN** | `Word2Vec` | **0.6995** | **0.7273** | 0.7250 | 0.6777 | 0.7337 |
-| **15** | **Word2Vec + 2-Stacked BiRNN** | `Word2Vec` | **0.6985** | **0.7236** | 0.7234 | 0.6839 | 0.7199 |
-| **16** | **Word2Vec + Simple RNN** | `Word2Vec` | **0.6979** | **0.7207** | 0.7177 | 0.6779 | 0.7306 |
-| **17** | **FastText + BiRNN** | `FastText` | **0.6931** | **0.7123** | 0.7131 | 0.6676 | 0.7365 |
-| **18** | **GloVe + BiRNN** | `GloVe` | **0.6900** | **0.7124** | 0.7095 | 0.6637 | 0.7397 |
-| **19** | **Word2Vec + 2-Stacked BiLSTM** | `Word2Vec` | **0.6892** | **0.7146** | 0.7137 | 0.6666 | 0.7450 |
-| **20** | **BoW + LinearSVC** | `Classical ML` | **0.6672** | **0.6916** | 0.6904 | 0.6647 | 0.6699 |
-| **21** | **Word TF-IDF + MultinomialNB** | `Classical ML` | **0.6375** | **0.6904** | 0.6832 | 0.6769 | 0.6161 |
-| **22** | **BoW + MultinomialNB** | `Classical ML` | **0.6348** | **0.6766** | 0.6728 | 0.6135 | 0.6731 |
-| **23** | **Word TF-IDF + ComplementNB** | `Classical ML` | **0.6235** | **0.6966** | 0.6707 | 0.6597 | 0.6263 |
-| **24** | **BoW + ComplementNB** | `Classical ML` | **0.6192** | **0.6945** | 0.6654 | 0.6616 | 0.6244 |
+**Dataset:** HumAID 10-Class Crisis Tweet Corpus (76,484 Total Tweets | 15,160 Test Tweets)
 
 ---
-## Key Benchmark Insights:
-1. **Top Transformer Performers:** **BERT Base Uncased** (Macro F1: `0.7540`, Accuracy: `0.7710`) and **RoBERTa Base** (Macro F1: `0.7529`, Accuracy: `0.7710`) achieved state-of-the-art performance, surpassing all traditional baselines by +3.7% in Macro F1 and +3.5% in Accuracy.
-2. **Top Classical ML Model:** **Word TF-IDF + LogisticRegression** achieved Macro F1 `0.7172` and Accuracy `0.7363`, outperforming standard recurrent neural networks (RNN/LSTM/BiLSTM).
-3. **Recurrent Embeddings Comparison:**
-   - **Word2Vec + LSTM:** Macro F1 `0.7080` (Top among Word2Vec models)
-   - **FastText + 2-Stacked BiLSTM:** Macro F1 `0.7060` (Top among FastText models)
-   - **GloVe + BiLSTM:** Macro F1 `0.7044` (Top among GloVe models)
+
+## 🏆 Final Benchmark Leaderboard
+
+| Rank | Model Architecture | Family | Test Macro F1 | Test Accuracy | Test Weighted F1 | Test Precision | Test Recall | Parameter Count | Optimal Config |
+|:---:|:---|:---|:---:|:---:|:---:|:---:|:---:|:---:|:---|
+| **🥇 1** | **RoBERTa Base** | **Transformer (RoBERTa)** | **76.19%** | **78.31%** | **77.83%** | **76.49%** | **76.12%** | **125M** | `LR=3e-5, L=48` |
+| **🥈 2** | **BERT Base Uncased** | **Transformer (BERT)** | **75.86%** | **77.92%** | **77.53%** | **76.28%** | **75.67%** | **110M** | `LR=3e-5, L=48` |
+| **🥉 3** | **FastText + BiLSTM** | **FastText Subword** | **74.04%** | **76.27%** | **76.12%** | **75.00%** | **73.44%** | **4.1M** | `L=48, H=256` |
+| 4 | **Word2Vec + 2-Stacked BiLSTM** | **Word2Vec** | 73.69% | 75.49% | 75.13% | 74.04% | 73.64% | 12.8M | `L=48, H=256, drop=0.3` |
+| 5 | **Word2Vec + BiLSTM** | **Word2Vec** | 73.29% | 75.67% | 75.58% | 73.33% | 73.75% | 11.3M | `L=48, H=256` |
+| 6 | **Word2Vec + BiGRU** | **Word2Vec** | 72.79% | 75.16% | 74.94% | 75.00% | 71.28% | 10.4M | `L=48, H=128` |
+| 7 | **FastText + BiRNN** | **FastText Subword** | 72.58% | 74.21% | 74.28% | 73.61% | 71.90% | 3.6M | `L=64, H=256` |
+| 8 | **Word TF-IDF + Logistic Regression** | **Classical ML** | 72.41% | 74.33% | 74.43% | 71.12% | 73.98% | N-gram | `min_df=2, C=5.0` |
+| 9 | **Word TF-IDF + LinearSVC** | **Classical ML** | 72.33% | 74.85% | 74.50% | 71.36% | 73.58% | N-gram | `min_df=2, C=0.5` |
+| 10 | **GloVe + BiLSTM** | **GloVe Pretrained** | 72.19% | 75.38% | 74.61% | 75.05% | 70.19% | 21.8M | `L=64, H=256` |
+| 11 | **BoW + LinearSVC** | **Classical ML** | 71.80% | 74.04% | 73.87% | 71.33% | 72.38% | N-gram | `min_df=2, C=0.05` |
+| 12 | **BoW + Logistic Regression** | **Classical ML** | 71.61% | 73.55% | 73.78% | 70.58% | 72.89% | N-gram | `min_df=2, C=0.5` |
+| 13 | **GloVe + BiRNN** | **GloVe Pretrained** | 71.00% | 74.10% | 74.14% | 73.64% | 69.26% | 20.9M | `L=64, H=64` |
+| 14 | **Word2Vec + BiRNN** | **Word2Vec** | 70.90% | 74.06% | 73.93% | 73.60% | 69.11% | 10.2M | `L=32, H=64` |
+| 15 | **Word TF-IDF + MultinomialNB** | **Classical ML** | 64.01% | 68.83% | 68.28% | 66.36% | 62.51% | N-gram | `30k_trigram, alpha=0.1` |
+| 16 | **BoW + MultinomialNB** | **Classical ML** | 63.09% | 67.93% | 67.27% | 62.45% | 64.83% | N-gram | `20k_bigram, alpha=1.0` |
+
+---
+
+## 🔍 Key Architectural Insights:
+1. **RoBERTa Base Achieves Benchmark State-of-the-Art:** Dynamic byte-pair encoding (BPE) and robust pretraining without next-sentence prediction enable RoBERTa to achieve the highest Macro F1 (**76.19%**) and Test Accuracy (**78.31%**), demonstrating superior semantic comprehension on short crisis tweets.
+2. **FastText Outperforms GloVe & Word2Vec in Recurrent Architectures:** Subword n-gram character n-grams allow FastText + BiLSTM (**74.04%**) to gracefully handle rare crisis misspellings, hashtags, and out-of-vocabulary entities.
+3. **Stacked BiLSTM Captures Hierarchical Temporal Context:** Adding a second recurrent layer to Word2Vec BiLSTM boosted Macro F1 from 73.29% to 73.69%.
