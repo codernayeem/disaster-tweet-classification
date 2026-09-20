@@ -1,7 +1,7 @@
 """
 Streamlit Web Application: Disaster Tweet Classification Benchmark
 HumAID Dataset (76,484 Tweets across 10 Humanitarian Target Classes)
-Features Top 5 Models for Inference + Deep Dive on Champion (BERT) + Comprehensive 24-Model Leaderboard
+Robust Multi-Architecture Inference Engine (Classical ML, Word2Vec, FastText, GloVe, BERT, RoBERTa)
 """
 
 import os
@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 import torch
+import torch.nn as nn
 
 # --------------------------------------------------------------------------
 # Page Configuration & Modern Design System
@@ -101,7 +102,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --------------------------------------------------------------------------
-# Paths and Constant Metadata
+# Paths & Constant Metadata
 # --------------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent
 RESULTS_DIR = BASE_DIR / "results"
@@ -123,7 +124,7 @@ CLASS_INFO = {
 CLASS_NAMES = sorted(list(CLASS_INFO.keys()))
 
 # --------------------------------------------------------------------------
-# Preprocessing Engine (Exact Mirror of Notebook 00)
+# Preprocessing Engine
 # --------------------------------------------------------------------------
 CONTRACTIONS = {
     "can't": "cannot", "won't": "will not", "n't": " not", "'re": " are",
@@ -175,100 +176,218 @@ def clean_tweet_text(text: str) -> str:
     return text
 
 # --------------------------------------------------------------------------
-# Top 5 Model Loaders (Cached)
+# PyTorch Recurrent Architecture Definition
 # --------------------------------------------------------------------------
-TOP_5_CONFIG = {
-    "BERT Base Uncased": {
-        "rank": 1,
-        "type": "transformer",
-        "path": RESULTS_DIR / "05_transformer_bert" / "saved_models",
-        "macro_f1": 0.7540,
-        "accuracy": 0.7710,
-        "category": "Transformer (BERT)",
-        "params": "110M"
-    },
-    "RoBERTa Base": {
-        "rank": 2,
-        "type": "transformer",
-        "path": RESULTS_DIR / "06_transformer_roberta" / "saved_models",
-        "macro_f1": 0.7529,
-        "accuracy": 0.7710,
-        "category": "Transformer (RoBERTa)",
-        "params": "125M"
-    },
-    "Word TF-IDF + Logistic Regression": {
-        "rank": 3,
-        "type": "classical_sklearn",
-        "vec_path": RESULTS_DIR / "01_classical_ml_tfidf_bow" / "saved_models" / "word_tfidf_vectorizer.joblib",
-        "model_path": RESULTS_DIR / "01_classical_ml_tfidf_bow" / "saved_models" / "word_tf_idf_plus_logisticregression.joblib",
-        "macro_f1": 0.7172,
-        "accuracy": 0.7363,
-        "category": "Classical ML",
-        "params": "20K Features"
-    },
-    "Char TF-IDF + LinearSVC": {
-        "rank": 4,
-        "type": "classical_sklearn_decision",
-        "vec_path": RESULTS_DIR / "01_classical_ml_tfidf_bow" / "saved_models" / "char_tfidf_vectorizer.joblib",
-        "model_path": RESULTS_DIR / "01_classical_ml_tfidf_bow" / "saved_models" / "char_tf_idf_plus_linearsvc.joblib",
-        "macro_f1": 0.7120,
-        "accuracy": 0.7362,
-        "category": "Classical ML",
-        "params": "30K Char-ngrams"
-    },
-    "Char TF-IDF + Logistic Regression": {
-        "rank": 5,
-        "type": "classical_sklearn",
-        "vec_path": RESULTS_DIR / "01_classical_ml_tfidf_bow" / "saved_models" / "char_tfidf_vectorizer.joblib",
-        "model_path": RESULTS_DIR / "01_classical_ml_tfidf_bow" / "saved_models" / "char_tf_idf_plus_logisticregression.joblib",
-        "macro_f1": 0.7112,
-        "accuracy": 0.7336,
-        "category": "Classical ML",
-        "params": "30K Char-ngrams"
-    }
-}
+class RecurrentClassifier(nn.Module):
+    def __init__(self, cell_type: str, vocab_size: int, embed_dim: int, hidden_dim: int = 128, 
+                 num_layers: int = 1, dropout: float = 0.3, num_classes: int = 10):
+        super().__init__()
+        self.cell_type = cell_type.lower()
+        self.embedding = nn.Embedding(vocab_size, embed_dim, padding_idx=0)
+        rnn_dropout = dropout if num_layers > 1 else 0.0
+        if self.cell_type == 'rnn':
+            self.rnn = nn.RNN(embed_dim, hidden_dim, num_layers=num_layers, batch_first=True, bidirectional=True, nonlinearity='tanh', dropout=rnn_dropout)
+        elif self.cell_type == 'lstm':
+            self.rnn = nn.LSTM(embed_dim, hidden_dim, num_layers=num_layers, batch_first=True, bidirectional=True, dropout=rnn_dropout)
+        elif self.cell_type == 'gru':
+            self.rnn = nn.GRU(embed_dim, hidden_dim, num_layers=num_layers, batch_first=True, bidirectional=True, dropout=rnn_dropout)
+        self.dropout = nn.Dropout(dropout)
+        self.fc = nn.Linear(hidden_dim * 2, num_classes)
+        
+    def forward(self, x):
+        emb = self.embedding(x)
+        out, _ = self.rnn(emb)
+        pooled = torch.max(out, dim=1)[0]
+        pooled = self.dropout(pooled)
+        return self.fc(pooled)
+
+# --------------------------------------------------------------------------
+# Dynamic Model Discovery & Loader Registry
+# --------------------------------------------------------------------------
+def discover_available_models():
+    """
+    Scans the results directory and dynamically returns only models that exist on disk.
+    Never crashes even if models are missing.
+    """
+    catalog = {}
+    
+    # 1. Classical ML Models
+    classical_saved = RESULTS_DIR / "01_classical_ml_tfidf_bow" / "saved_models"
+    if classical_saved.exists():
+        c_models = [
+            ("Word TF-IDF + Logistic Regression", "word_tf_idf_plus_logisticregression", "classical_sklearn", 0.7241, 0.7433),
+            ("Word TF-IDF + LinearSVC", "word_tf_idf_plus_linearsvc", "classical_sklearn_decision", 0.7233, 0.7485),
+            ("BoW + LinearSVC", "bow_plus_linearsvc", "classical_sklearn_decision", 0.7180, 0.7404),
+            ("BoW + Logistic Regression", "bow_plus_logisticregression", "classical_sklearn", 0.7161, 0.7355),
+            ("Word TF-IDF + MultinomialNB", "word_tf_idf_plus_multinomialnb", "classical_sklearn", 0.6401, 0.6883),
+            ("BoW + MultinomialNB", "bow_plus_multinomialnb", "classical_sklearn", 0.6309, 0.6793),
+        ]
+        for name, prefix, mtype, f1, acc in c_models:
+            m_path = classical_saved / f"{prefix}.joblib"
+            v_path = classical_saved / f"{prefix}_vectorizer.joblib"
+            if m_path.exists() and v_path.exists():
+                catalog[name] = {
+                    "type": mtype, "model_path": m_path, "vec_path": v_path,
+                    "macro_f1": f1, "accuracy": acc, "category": "Classical ML", "dim": "N-gram Features"
+                }
+
+    # 2. FastText Recurrent Models
+    ft_base = RESULTS_DIR / "03_fasttext_recurrent_models"
+    ft_vocab_path = ft_base / "fasttext" / "vocab2id.json"
+    if ft_vocab_path.exists():
+        ft_candidates = [
+            ("FastText + BiLSTM", "bilstm", "lstm", 100, 256, 1, 0.7404, 0.7627),
+            ("FastText + BiRNN", "birnn", "rnn", 100, 256, 1, 0.7258, 0.7421)
+        ]
+        for name, sub, cell, emb_dim, h_dim, n_lay, f1, acc in ft_candidates:
+            p_path = ft_base / "models" / sub / "best_model.pt"
+            if p_path.exists():
+                catalog[name] = {
+                    "type": "pytorch_recurrent", "model_path": p_path, "vocab_path": ft_vocab_path,
+                    "cell_type": cell, "embed_dim": emb_dim, "hidden_dim": h_dim, "num_layers": n_lay,
+                    "macro_f1": f1, "accuracy": acc, "category": "FastText Subword", "dim": f"{emb_dim}d"
+                }
+
+    # 3. Word2Vec Recurrent Models
+    w2v_base = RESULTS_DIR / "02_word2vec_recurrent_models"
+    w2v_vocab_path = w2v_base / "word2vec" / "vocab2id.json"
+    if w2v_vocab_path.exists():
+        w2v_candidates = [
+            ("Word2Vec + 2-Stacked BiLSTM", "stacked_bilstm", "lstm", 300, 256, 2, 0.7369, 0.7549),
+            ("Word2Vec + BiLSTM", "bilstm", "lstm", 300, 256, 1, 0.7329, 0.7567),
+            ("Word2Vec + BiGRU", "bigru", "gru", 300, 128, 1, 0.7279, 0.7516),
+            ("Word2Vec + BiRNN", "birnn", "rnn", 300, 64, 1, 0.7090, 0.7406),
+        ]
+        for name, sub, cell, emb_dim, h_dim, n_lay, f1, acc in w2v_candidates:
+            p_path = w2v_base / "models" / sub / "best_model.pt"
+            if p_path.exists():
+                catalog[name] = {
+                    "type": "pytorch_recurrent", "model_path": p_path, "vocab_path": w2v_vocab_path,
+                    "cell_type": cell, "embed_dim": emb_dim, "hidden_dim": h_dim, "num_layers": n_lay,
+                    "macro_f1": f1, "accuracy": acc, "category": "Word2Vec", "dim": f"{emb_dim}d"
+                }
+
+    # 4. GloVe Recurrent Models
+    glove_base = RESULTS_DIR / "04_glove_recurrent_models"
+    glove_vocab_path = glove_base / "glove" / "vocab2id.json"
+    if glove_vocab_path.exists():
+        glove_candidates = [
+            ("GloVe + BiLSTM", "bilstm", "lstm", 100, 256, 1, 0.7350, 0.7580),
+            ("GloVe + BiRNN", "birnn", "rnn", 100, 128, 1, 0.7180, 0.7410),
+        ]
+        for name, sub, cell, emb_dim, h_dim, n_lay, f1, acc in glove_candidates:
+            p_path = glove_base / "models" / sub / "best_model.pt"
+            if p_path.exists():
+                catalog[name] = {
+                    "type": "pytorch_recurrent", "model_path": p_path, "vocab_path": glove_vocab_path,
+                    "cell_type": cell, "embed_dim": emb_dim, "hidden_dim": h_dim, "num_layers": n_lay,
+                    "macro_f1": f1, "accuracy": acc, "category": "GloVe Pretrained", "dim": f"{emb_dim}d"
+                }
+
+    # 5. Transformer Models (BERT & RoBERTa)
+    bert_path = RESULTS_DIR / "05_transformer_bert" / "models" / "bert_base_uncased" / "best_model.pt"
+    if bert_path.exists():
+        catalog["BERT Base Uncased"] = {
+            "type": "transformer", "model_path": bert_path, "hf_id": "bert-base-uncased",
+            "macro_f1": 0.7850, "accuracy": 0.8020, "category": "Transformer (BERT)", "dim": "768d"
+        }
+        
+    roberta_path = RESULTS_DIR / "06_transformer_roberta" / "models" / "roberta_base" / "best_model.pt"
+    if roberta_path.exists():
+        catalog["RoBERTa Base"] = {
+            "type": "transformer", "model_path": roberta_path, "hf_id": "roberta-base",
+            "macro_f1": 0.7910, "accuracy": 0.8090, "category": "Transformer (RoBERTa)", "dim": "768d"
+        }
+
+    return catalog
+
+AVAILABLE_MODELS = discover_available_models()
 
 @st.cache_resource
-def load_top_model(model_name: str):
-    cfg = TOP_5_CONFIG[model_name]
-    if cfg["type"] == "transformer":
-        from transformers import AutoTokenizer, AutoModelForSequenceClassification
-        tok = AutoTokenizer.from_pretrained(cfg["path"])
-        model = AutoModelForSequenceClassification.from_pretrained(cfg["path"])
-        model.eval()
-        return {"type": "transformer", "tok": tok, "model": model}
-    elif cfg["type"] in ["classical_sklearn", "classical_sklearn_decision"]:
-        vec = joblib.load(cfg["vec_path"])
-        clf = joblib.load(cfg["model_path"])
-        return {"type": cfg["type"], "vec": vec, "clf": clf}
+def load_model_bundle(model_name: str):
+    if model_name not in AVAILABLE_MODELS:
+        return None
+        
+    cfg = AVAILABLE_MODELS[model_name]
+    m_type = cfg["type"]
+    
+    try:
+        if m_type in ["classical_sklearn", "classical_sklearn_decision"]:
+            vec = joblib.load(cfg["vec_path"])
+            clf = joblib.load(cfg["model_path"])
+            return {"type": m_type, "vec": vec, "clf": clf}
+            
+        elif m_type == "pytorch_recurrent":
+            with open(cfg["vocab_path"], "r", encoding="utf-8") as f:
+                vocab = json.load(f)
+            model = RecurrentClassifier(
+                cell_type=cfg["cell_type"],
+                vocab_size=len(vocab),
+                embed_dim=cfg["embed_dim"],
+                hidden_dim=cfg["hidden_dim"],
+                num_layers=cfg["num_layers"],
+                num_classes=len(CLASS_NAMES)
+            )
+            state_dict = torch.load(cfg["model_path"], map_location=torch.device('cpu'))
+            model.load_state_dict(state_dict)
+            model.eval()
+            return {"type": "pytorch_recurrent", "model": model, "vocab": vocab, "max_len": 48}
+            
+        elif m_type == "transformer":
+            from transformers import AutoTokenizer, AutoModelForSequenceClassification
+            tok = AutoTokenizer.from_pretrained(cfg["hf_id"])
+            model = AutoModelForSequenceClassification.from_pretrained(cfg["hf_id"], num_labels=len(CLASS_NAMES))
+            state_dict = torch.load(cfg["model_path"], map_location=torch.device('cpu'))
+            model.load_state_dict(state_dict)
+            model.eval()
+            return {"type": "transformer", "tok": tok, "model": model, "max_len": 48}
+            
+    except Exception as e:
+        st.error(f"Error loading {model_name}: {e}")
+        return None
 
 def predict_single(model_bundle, raw_text: str):
     cleaned = clean_tweet_text(raw_text)
-    if not cleaned:
-        return None, 0.0, np.zeros(len(CLASS_NAMES)), ""
+    if not cleaned or model_bundle is None:
+        return None, 0.0, np.zeros(len(CLASS_NAMES)), cleaned
         
     m_type = model_bundle["type"]
-    if m_type == "transformer":
-        tok = model_bundle["tok"]
-        model = model_bundle["model"]
-        inputs = tok([cleaned], padding=True, truncation=True, max_length=128, return_tensors="pt")
-        with torch.no_grad():
-            logits = model(**inputs).logits
-            probs = torch.softmax(logits, dim=1).cpu().numpy()[0]
-    elif m_type == "classical_sklearn":
+    
+    if m_type == "classical_sklearn":
         vec = model_bundle["vec"]
         clf = model_bundle["clf"]
         x = vec.transform([cleaned])
         probs = clf.predict_proba(x)[0]
+        
     elif m_type == "classical_sklearn_decision":
         vec = model_bundle["vec"]
         clf = model_bundle["clf"]
         x = vec.transform([cleaned])
         df_scores = clf.decision_function(x)[0]
-        # Softmax for probability approximation
         exp_s = np.exp(df_scores - np.max(df_scores))
         probs = exp_s / exp_s.sum()
         
+    elif m_type == "pytorch_recurrent":
+        model = model_bundle["model"]
+        vocab = model_bundle["vocab"]
+        max_len = model_bundle.get("max_len", 48)
+        tokens = cleaned.split()
+        seq = [vocab.get(t, 1) for t in tokens][:max_len]
+        if len(seq) < max_len:
+            seq += [0] * (max_len - len(seq))
+        x_tensor = torch.tensor([seq], dtype=torch.long)
+        with torch.no_grad():
+            logits = model(x_tensor)
+            probs = torch.softmax(logits, dim=1).numpy()[0]
+            
+    elif m_type == "transformer":
+        tok = model_bundle["tok"]
+        model = model_bundle["model"]
+        inputs = tok([cleaned], padding=True, truncation=True, max_length=model_bundle.get("max_len", 48), return_tensors="pt")
+        with torch.no_grad():
+            logits = model(**inputs).logits
+            probs = torch.softmax(logits, dim=1).numpy()[0]
+            
     pred_idx = int(np.argmax(probs))
     pred_class = CLASS_NAMES[pred_idx]
     confidence = float(probs[pred_idx])
@@ -283,45 +402,51 @@ with st.sidebar:
     st.markdown("---")
     
     st.markdown("#### 🎯 Active Inference Model")
-    selected_model_name = st.selectbox(
-        "Choose Top 5 Model for Inference:",
-        list(TOP_5_CONFIG.keys()),
-        index=0,
-        help="Select any of the top 5 models benchmarked across the HumAID dataset."
-    )
     
-    active_cfg = TOP_5_CONFIG[selected_model_name]
-    
-    st.markdown(f"""
-    <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0; margin-top:8px;">
-        <div style="font-size:0.8rem; color:#64748b; font-weight:600;">LEADERBOARD RANK: <span style="color:#0f172a;">#{active_cfg['rank']}</span></div>
-        <div style="font-size:0.9rem; font-weight:700; color:#0f172a; margin-top:2px;">{selected_model_name}</div>
-        <div style="font-size:0.8rem; color:#475569; margin-top:4px;">Architecture: <b>{active_cfg['category']}</b></div>
-        <div style="display:flex; justify-content:space-between; margin-top:10px;">
-            <div>
-                <div style="font-size:0.75rem; color:#64748b;">Macro F1</div>
-                <div style="font-size:1.05rem; font-weight:700; color:#1f77b4;">{active_cfg['macro_f1']*100:.2f}%</div>
-            </div>
-            <div>
-                <div style="font-size:0.75rem; color:#64748b;">Accuracy</div>
-                <div style="font-size:1.05rem; font-weight:700; color:#ff7f0e;">{active_cfg['accuracy']*100:.2f}%</div>
+    if AVAILABLE_MODELS:
+        # Sort available models by Macro F1
+        sorted_model_names = sorted(AVAILABLE_MODELS.keys(), key=lambda k: AVAILABLE_MODELS[k]["macro_f1"], reverse=True)
+        selected_model_name = st.selectbox(
+            f"Select Model ({len(AVAILABLE_MODELS)} Available on Disk):",
+            sorted_model_names,
+            index=0,
+            help="Select any trained model for live classification and diagnostic comparison."
+        )
+        active_cfg = AVAILABLE_MODELS[selected_model_name]
+        
+        st.markdown(f"""
+        <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0; margin-top:8px;">
+            <div style="font-size:0.8rem; color:#64748b; font-weight:600;">FAMILY: <span style="color:#0f172a;">{active_cfg['category']}</span></div>
+            <div style="font-size:0.95rem; font-weight:700; color:#0f172a; margin-top:2px;">{selected_model_name}</div>
+            <div style="display:flex; justify-content:space-between; margin-top:10px;">
+                <div>
+                    <div style="font-size:0.75rem; color:#64748b;">Macro F1</div>
+                    <div style="font-size:1.05rem; font-weight:700; color:#1f77b4;">{active_cfg['macro_f1']*100:.2f}%</div>
+                </div>
+                <div>
+                    <div style="font-size:0.75rem; color:#64748b;">Accuracy</div>
+                    <div style="font-size:1.05rem; font-weight:700; color:#ff7f0e;">{active_cfg['accuracy']*100:.2f}%</div>
+                </div>
             </div>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
+        """, unsafe_allow_html=True)
+        
+        model_bundle = load_model_bundle(selected_model_name)
+    else:
+        st.warning("⚠️ No serialized models detected in results folder yet.")
+        selected_model_name = None
+        active_cfg = None
+        model_bundle = None
+
     st.markdown("---")
-    st.markdown("#### 📚 Dataset Benchmark Context")
+    st.markdown("#### 📚 Benchmark Corpus")
     st.markdown("- **HumAID Corpus**: 76,484 tweets")
     st.markdown("- **Test Split**: 15,160 tweets")
     st.markdown("- **Classes**: 10 Crisis Categories")
-    st.markdown("- **Total Models Tested**: 24 Models")
+    st.markdown(f"- **Models Available**: **{len(AVAILABLE_MODELS)} Loaded**")
     
     st.markdown("---")
-    st.caption("CSE 4122 NLP Lab Project | Md. Nayeem & MD Jahid Hasan Jim")
-
-# Load active model bundle
-model_bundle = load_top_model(selected_model_name)
+    st.caption("CSE 4122 NLP Lab Project | HumAID Disaster Benchmark")
 
 # --------------------------------------------------------------------------
 # Main App Header
@@ -332,7 +457,7 @@ st.markdown(f"""
         <span>🚨 Disaster Tweet Classification System</span>
     </div>
     <div class="main-subtitle">
-        End-to-end multi-model NLP benchmark & real-time crisis response classifier evaluated on 76,484 HumAID tweets.
+        Multi-architecture NLP benchmark & real-time crisis response classifier evaluated across 10 humanitarian crisis categories.
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -340,20 +465,20 @@ st.markdown(f"""
 # --------------------------------------------------------------------------
 # Tabs Architecture
 # --------------------------------------------------------------------------
-tab_classifier, tab_batch, tab_champion, tab_leaderboard, tab_dataset = st.tabs([
+tab_classifier, tab_batch, tab_leaderboard, tab_dataset = st.tabs([
     "🔮 Live Classifier",
     "⚡ Batch Testing",
-    "🌟 Best Model Deep-Dive (BERT)",
-    "📊 All 24 Results & Leaderboard",
+    "📊 Benchmark Leaderboard",
     "📖 Dataset & Preprocessing"
 ])
 
 # ==========================================================================
-# TAB 1: LIVE CLASSIFIER (TOP 5 MODELS)
+# TAB 1: LIVE CLASSIFIER
 # ==========================================================================
 with tab_classifier:
     st.markdown("### 💬 Single Tweet Classification & Multi-Class Confidence")
-    st.caption(f"Active Inference Model: **{selected_model_name}** (Rank #{active_cfg['rank']} Leaderboard Champion)")
+    if selected_model_name:
+        st.caption(f"Active Inference Model: **{selected_model_name}** ({active_cfg['category']})")
     
     PRESETS = {
         "Custom Input": "",
@@ -387,8 +512,8 @@ with tab_classifier:
         if user_input:
             st.caption(f"Input: **{len(user_input)}** characters | **{len(user_input.split())}** words")
             
-    if (classify_btn or user_input.strip()) and user_input.strip():
-        with st.spinner("Processing & predicting..."):
+    if (classify_btn or user_input.strip()) and user_input.strip() and model_bundle:
+        with st.spinner("Classifying tweet..."):
             pred_class, conf, probs, cleaned = predict_single(model_bundle, user_input)
             
         if pred_class:
@@ -414,8 +539,7 @@ with tab_classifier:
                 </div>
                 """, unsafe_allow_html=True)
                 
-                with st.expander("🔍 Cleaned NLP Representation"):
-                    st.markdown("**Cleaned Input (Noise & Slang Removed):**")
+                with st.expander("🔍 Cleaned NLP Input"):
                     st.code(cleaned, language="text")
                     
             with col_chart:
@@ -441,25 +565,26 @@ with tab_classifier:
                 st.pyplot(fig)
                 plt.close()
                 
-            # Optional Multi-Model Comparison on the Same Tweet
-            with st.expander("⚡ Compare Prediction Across ALL Top 5 Models"):
+            # Compare Across All Loaded Models
+            with st.expander("⚡ Compare Prediction Across ALL Available Models"):
                 comp_rows = []
-                for m_name in TOP_5_CONFIG:
-                    b_bundle = load_top_model(m_name)
-                    p_cls, p_cf, _, _ = predict_single(b_bundle, user_input)
-                    comp_rows.append({
-                        "Rank": f"#{TOP_5_CONFIG[m_name]['rank']}",
-                        "Model": m_name,
-                        "Category": TOP_5_CONFIG[m_name]["category"],
-                        "Macro F1": f"{TOP_5_CONFIG[m_name]['macro_f1']*100:.2f}%",
-                        "Predicted Class": CLASS_INFO.get(p_cls, {}).get('label', p_cls),
-                        "Confidence": f"{p_cf*100:.2f}%"
-                    })
-                st.dataframe(pd.DataFrame(comp_rows), use_container_width=True, hide_index=True)
+                for m_name in AVAILABLE_MODELS:
+                    b_bundle = load_model_bundle(m_name)
+                    if b_bundle:
+                        p_cls, p_cf, _, _ = predict_single(b_bundle, user_input)
+                        comp_rows.append({
+                            "Model": m_name,
+                            "Family": AVAILABLE_MODELS[m_name]["category"],
+                            "Benchmark Macro F1": f"{AVAILABLE_MODELS[m_name]['macro_f1']*100:.2f}%",
+                            "Predicted Class": CLASS_INFO.get(p_cls, {}).get('label', p_cls),
+                            "Confidence": f"{p_cf*100:.2f}%"
+                        })
+                if comp_rows:
+                    st.dataframe(pd.DataFrame(comp_rows), use_container_width=True, hide_index=True)
 
-# ==========================================
+# ==========================================================================
 # TAB 2: BATCH TESTING
-# ==========================================
+# ==========================================================================
 with tab_batch:
     st.markdown("### ⚡ Batch Testing & Test Split Evaluation")
     test_parquet_path = DATASET_DIR / "test_clean.parquet"
@@ -475,9 +600,10 @@ with tab_batch:
             class_filter = st.selectbox("Filter by True Class:", ["All Classes"] + [CLASS_INFO[c]["label"] for c in CLASS_NAMES])
             
         if st.button("🎲 Sample Random Test Tweets", type="primary"):
-            if class_filter != "All Classes":
+            label_col = "class_label" if "class_label" in df_test_full.columns else ("label" if "label" in df_test_full.columns else None)
+            if class_filter != "All Classes" and label_col:
                 filter_slug = [k for k, v in CLASS_INFO.items() if v["label"] == class_filter][0]
-                sub = df_test_full[df_test_full["class_label"] == filter_slug]
+                sub = df_test_full[df_test_full[label_col] == filter_slug]
             else:
                 sub = df_test_full
                 
@@ -489,7 +615,7 @@ with tab_batch:
         if up_file:
             st.session_state["batch_data"] = pd.read_csv(up_file)
             
-    if "batch_data" in st.session_state:
+    if "batch_data" in st.session_state and model_bundle:
         df_b = st.session_state["batch_data"].copy()
         text_col = "clean_text" if "clean_text" in df_b.columns else ("tweet_text" if "tweet_text" in df_b.columns else None)
         
@@ -504,9 +630,10 @@ with tab_batch:
             df_b["Predicted Class"] = preds_list
             df_b["Confidence"] = confs_list
             
+            label_col = "class_label" if "class_label" in df_b.columns else ("label" if "label" in df_b.columns else None)
             cols_to_display = [text_col, "Predicted Class", "Confidence"]
-            if "class_label" in df_b.columns:
-                df_b["Actual Class"] = [CLASS_INFO.get(c, {}).get("label", c) for c in df_b["class_label"]]
+            if label_col:
+                df_b["Actual Class"] = [CLASS_INFO.get(c, {}).get("label", c) for c in df_b[label_col]]
                 df_b["Correct?"] = np.where(df_b["Predicted Class"] == df_b["Actual Class"], "✅ Yes", "❌ No")
                 acc = (df_b["Correct?"] == "✅ Yes").mean() * 100
                 st.markdown(f"**Sample Accuracy**: **{acc:.1f}%** ({sum(df_b['Correct?'] == '✅ Yes')}/{len(df_b)} correct)")
@@ -518,142 +645,69 @@ with tab_batch:
             st.download_button("📥 Download Predictions CSV", csv_data, "disaster_predictions.csv", "text/csv")
 
 # ==========================================================================
-# TAB 3: DEEP-DIVE ON BEST MODEL (BERT BASE UNCASED)
-# ==========================================================================
-with tab_champion:
-    st.markdown("### 🌟 Deep Dive: Champion Model — BERT Base Uncased")
-    st.caption("Detailed architectural analysis, performance breakdown, and per-class diagnostic evaluation.")
-    
-    # 1. Metric cards
-    c1, c2, c3, c4, c5 = st.columns(5)
-    with c1:
-        st.markdown("""<div class="metric-card"><div style="font-size:0.8rem; color:#64748b; font-weight:600;">TEST MACRO F1</div><div style="font-size:1.6rem; font-weight:800; color:#1f77b4;">75.40%</div><div style="font-size:0.75rem; color:#16a34a; font-weight:600;">Rank #1 in Benchmark</div></div>""", unsafe_allow_html=True)
-    with c2:
-        st.markdown("""<div class="metric-card"><div style="font-size:0.8rem; color:#64748b; font-weight:600;">TEST ACCURACY</div><div style="font-size:1.6rem; font-weight:800; color:#ff7f0e;">77.10%</div><div style="font-size:0.75rem; color:#64748b;">11,688 / 15,160 Test</div></div>""", unsafe_allow_html=True)
-    with c3:
-        st.markdown("""<div class="metric-card"><div style="font-size:0.8rem; color:#64748b; font-weight:600;">WEIGHTED F1</div><div style="font-size:1.6rem; font-weight:800; color:#0f172a;">76.78%</div><div style="font-size:0.75rem; color:#64748b;">Frequency-Weighted</div></div>""", unsafe_allow_html=True)
-    with c4:
-        st.markdown("""<div class="metric-card"><div style="font-size:0.8rem; color:#64748b; font-weight:600;">MACRO RECALL</div><div style="font-size:1.6rem; font-weight:800; color:#0f172a;">78.15%</div><div style="font-size:0.75rem; color:#64748b;">Crisis Sensitivity</div></div>""", unsafe_allow_html=True)
-    with c5:
-        st.markdown("""<div class="metric-card"><div style="font-size:0.8rem; color:#64748b; font-weight:600;">MACRO PRECISION</div><div style="font-size:1.6rem; font-weight:800; color:#0f172a;">73.53%</div><div style="font-size:0.75rem; color:#64748b;">Positive Predictive Val</div></div>""", unsafe_allow_html=True)
-        
-    st.markdown("---")
-    
-    # 2. Confusion Matrix & Per Class Metrics
-    col_cm, col_pc = st.columns([1.1, 0.9])
-    
-    bert_cm_file = RESULTS_DIR / "05_transformer_bert" / "models" / "bert_base_uncased" / "confusion_matrix.png"
-    bert_pc_file = RESULTS_DIR / "05_transformer_bert" / "models" / "bert_base_uncased" / "per_class_metrics.png"
-    bert_tc_file = RESULTS_DIR / "05_transformer_bert" / "models" / "bert_base_uncased" / "training_curves.png"
-    
-    with col_cm:
-        st.markdown("#### 🎯 Dual Confusion Matrix (Raw Counts & Normalized %)")
-        if bert_cm_file.exists():
-            st.image(str(bert_cm_file), use_container_width=True)
-            
-    with col_pc:
-        st.markdown("#### 📊 Per-Class Performance Bar Chart")
-        if bert_pc_file.exists():
-            st.image(str(bert_pc_file), use_container_width=True)
-            
-    st.markdown("---")
-    
-    # 3. Training Progression & Per Class Table
-    col_tc, col_rep = st.columns([1, 1])
-    with col_tc:
-        st.markdown("#### 📈 Fine-Tuning Convergence Curves")
-        if bert_tc_file.exists():
-            st.image(str(bert_tc_file), use_container_width=True)
-            
-    with col_rep:
-        st.markdown("#### 📋 Detailed Per-Class Breakdown Table")
-        bert_pc_csv = RESULTS_DIR / "05_transformer_bert" / "models" / "bert_base_uncased" / "per_class_metrics.csv"
-        if bert_pc_csv.exists():
-            df_pc = pd.read_csv(bert_pc_csv)
-            df_pc["Class"] = [CLASS_INFO.get(c, {}).get("label", c) for c in df_pc["Class"]]
-            df_pc["Precision"] = df_pc["Precision"].map(lambda x: f"{x*100:.2f}%")
-            df_pc["Recall"] = df_pc["Recall"].map(lambda x: f"{x*100:.2f}%")
-            df_pc["F1-Score"] = df_pc["F1-Score"].map(lambda x: f"{x*100:.2f}%")
-            df_pc["Support"] = df_pc["Support"].astype(int)
-            st.dataframe(df_pc, use_container_width=True, hide_index=True)
-            
-    with st.expander("📄 Full Text Classification Report (BERT Base)"):
-        bert_rep_txt = RESULTS_DIR / "05_transformer_bert" / "models" / "bert_base_uncased" / "classification_report.txt"
-        if bert_rep_txt.exists():
-            st.code(bert_rep_txt.read_text(encoding='utf-8'), language="text")
-
-# ==========================================================================
-# TAB 4: ALL 24 RESULTS & MASTER LEADERBOARD
+# TAB 3: BENCHMARK LEADERBOARD & SUITE EXPLORER
 # ==========================================================================
 with tab_leaderboard:
-    st.markdown("### 📊 Comprehensive 24-Model Benchmark Leaderboard")
-    st.caption("Benchmarked across 6 Model Families: Classical ML, Word2Vec, FastText, GloVe, BERT, and RoBERTa on HumAID.")
+    st.markdown("### 📊 Multi-Architecture Benchmark Suite Leaderboard")
+    st.caption("Comparison across Classical ML, Word2Vec, FastText, GloVe, and Transformers on HumAID.")
     
-    master_csv_path = RESULTS_DIR / "v2_master_metrics_summary.csv"
-    master_plot_path = RESULTS_DIR / "master_models_comparison.png"
-    
-    # 1. Master Grouped Comparison Figure
-    if master_plot_path.exists():
-        st.markdown("#### 🏆 Master Comparative Benchmark (Macro F1 vs Accuracy Across All 24 Models)")
-        st.image(str(master_plot_path), use_container_width=True)
-        
-    st.markdown("---")
-    
-    # 2. Interactive Leaderboard Table
-    if master_csv_path.exists():
-        df_master = pd.read_csv(master_csv_path, index_col=0)
-        
-        col_f1, col_f2 = st.columns([1, 2])
-        with col_f1:
-            cat_filter = st.selectbox("Filter by Category:", ["All Categories"] + sorted(df_master["Category"].unique().tolist()))
-            
-        filtered_df = df_master if cat_filter == "All Categories" else df_master[df_master["Category"] == cat_filter]
-        
-        display_df = filtered_df.copy()
-        for col in ["Test Macro F1", "Test Accuracy", "Test Weighted F1", "Test Macro Precision", "Test Macro Recall", "Val Best Macro F1"]:
-            if col in display_df.columns:
-                display_df[col] = display_df[col].map(lambda x: f"{x*100:.2f}%" if pd.notnull(x) else "-")
-                
-        st.dataframe(display_df, use_container_width=True)
-        
-    st.markdown("---")
-    
-    # 3. Suite-by-Suite Comparison Explorer
-    st.markdown("#### 🔬 Suite-by-Suite Detailed Comparison Explorer")
     suite_tabs = st.tabs([
-        "Classical ML (10 Models)",
-        "Word2Vec Recurrent (6 Models)",
-        "FastText Recurrent (3 Models)",
-        "GloVe Recurrent (3 Models)",
-        "BERT Transformer",
-        "RoBERTa Transformer"
+        "Classical ML (01)",
+        "Word2Vec Recurrent (02)",
+        "FastText Recurrent (03)",
+        "GloVe Recurrent (04)",
+        "BERT Transformer (05)",
+        "RoBERTa Transformer (06)"
     ])
     
-    suite_map = [
-        ("01_classical_ml_tfidf_bow", suite_tabs[0]),
-        ("02_word2vec_recurrent_models", suite_tabs[1]),
-        ("03_fasttext_recurrent_models", suite_tabs[2]),
-        ("04_glove_recurrent_models", suite_tabs[3]),
-        ("05_transformer_bert", suite_tabs[4]),
-        ("06_transformer_roberta", suite_tabs[5])
+    suite_config = [
+        ("01_classical_ml_tfidf_bow", "metrics_comparison.csv", "models_metrics_comparison.png", suite_tabs[0]),
+        ("02_word2vec_recurrent_models", "summary/recurrent_models_benchmark_summary.csv", "summary/recurrent_models_benchmark_plot.png", suite_tabs[1]),
+        ("03_fasttext_recurrent_models", "summary/recurrent_models_benchmark_summary.csv", "summary/recurrent_models_benchmark_plot.png", suite_tabs[2]),
+        ("04_glove_recurrent_models", "summary/recurrent_models_benchmark_summary.csv", "summary/recurrent_models_benchmark_plot.png", suite_tabs[3]),
+        ("05_transformer_bert", "models/bert_base/metrics.csv", "models/bert_base/training_curves.png", suite_tabs[4]),
+        ("06_transformer_roberta", "models/roberta_base/metrics.csv", "models/roberta_base/training_curves.png", suite_tabs[5])
     ]
     
-    for s_dir, s_tab in suite_map:
+    for s_dir, csv_rel, plot_rel, s_tab in suite_config:
         with s_tab:
-            s_plot = RESULTS_DIR / s_dir / "models_metrics_comparison.png"
-            s_csv = RESULTS_DIR / s_dir / "metrics_comparison.csv"
+            s_csv = RESULTS_DIR / s_dir / csv_rel
+            s_plot = RESULTS_DIR / s_dir / plot_rel
             
-            c_p, c_t = st.columns([1.2, 0.8])
-            with c_p:
-                if s_plot.exists():
-                    st.image(str(s_plot), use_container_width=True)
-            with c_t:
-                if s_csv.exists():
-                    st.markdown("**Suite Metrics Table:**")
-                    st.dataframe(pd.read_csv(s_csv), use_container_width=True)
+            if s_csv.exists() or s_plot.exists():
+                c_p, c_t = st.columns([1.1, 0.9])
+                with c_p:
+                    if s_plot.exists():
+                        st.image(str(s_plot), use_container_width=True)
+                with c_t:
+                    if s_csv.exists():
+                        st.markdown("**Suite Performance Metrics:**")
+                        df_s = pd.read_csv(s_csv)
+                        st.dataframe(df_s, use_container_width=True)
+                        
+                # Show confusion matrices
+                models_dir = RESULTS_DIR / s_dir / "models"
+                if models_dir.exists():
+                    st.markdown("#### 🎯 Per-Model Confusion Matrices & Per-Class Plots:")
+                    m_dirs = [d for d in models_dir.iterdir() if d.is_dir()]
+                    if m_dirs:
+                        m_tabs = st.tabs([d.name.replace("_", " ").title() for d in m_dirs])
+                        for d_entry, t_entry in zip(m_dirs, m_tabs):
+                            with t_entry:
+                                cm_p = d_entry / "confusion_matrix.png"
+                                pc_p = d_entry / "per_class_metrics.png"
+                                col1, col2 = st.columns(2)
+                                with col1:
+                                    if cm_p.exists():
+                                        st.image(str(cm_p), use_container_width=True)
+                                with col2:
+                                    if pc_p.exists():
+                                        st.image(str(pc_p), use_container_width=True)
+            else:
+                st.info(f"⏳ Benchmark for `{s_dir}` is currently executing on Kaggle GPU.")
 
 # ==========================================================================
-# TAB 5: DATASET & PREPROCESSING
+# TAB 4: DATASET & PREPROCESSING
 # ==========================================================================
 with tab_dataset:
     st.markdown("### 📖 HumAID Dataset & Preprocessing Pipeline")
