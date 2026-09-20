@@ -1,5 +1,0 @@
-Preprocessing Tier,Val Macro-F1 (%),Test Accuracy (%),Test Macro-F1 (%),Test Weighted-F1 (%)
-1. Raw / Minimal,71.08,73.61,71.88,73.85
-2. Light Cleaning,71.06,73.54,71.94,73.78
-3. Standard (Domain-Aware),70.84,73.51,71.53,73.76
-4. Aggressive (Destructive),70.62,73.23,70.86,73.51
