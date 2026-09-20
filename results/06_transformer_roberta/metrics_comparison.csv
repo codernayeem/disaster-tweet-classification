@@ -1,2 +1,0 @@
-Model,Architecture,Parameters,Val Best Macro F1,Test Accuracy,Test Macro F1,Test Weighted F1,Test Macro Precision,Test Macro Recall
-RoBERTa Base,Transformer (RoBERTa),125M,0.7520334757756477,0.7710422163588391,0.7528632645913202,0.7674213232972932,0.731480065421193,0.7860386874260095

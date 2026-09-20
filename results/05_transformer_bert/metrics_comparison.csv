@@ -1,2 +1,0 @@
-Model,Architecture,Parameters,Val Best Macro F1,Test Accuracy,Test Macro F1,Test Weighted F1,Test Macro Precision,Test Macro Recall
-BERT Base Uncased,Transformer (BERT),110M,0.7473389248440595,0.770976253298153,0.7539579274383119,0.7677646387216804,0.7353291987700721,0.7814610333010075
