@@ -1,0 +1,6 @@
+Config,Architecture,Dimension,Window,Val_Macro_F1,Val_Accuracy,Vocab_Size,Time_Sec
+FastText_SkipGram_100d_w5,Skip-Gram,100,5,0.7286,0.7586,33718,79.62
+FastText_CBOW_100d_w5,CBOW,100,5,0.7283,0.752,33718,67.0
+FastText_CBOW_300d_w5,CBOW,300,5,0.7269,0.7495,33718,107.85
+FastText_SkipGram_300d_w3,Skip-Gram,300,3,0.7262,0.7554,33718,110.9
+FastText_SkipGram_300d_w5,Skip-Gram,300,5,0.7256,0.7553,33718,135.06
