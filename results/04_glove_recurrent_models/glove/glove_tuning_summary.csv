@@ -1,0 +1,6 @@
+Config,Source,Dimension,Coverage_Pct,Val_Macro_F1,Val_Accuracy,Time_Sec
+GloVe_Twitter_200d,glove-twitter-200,200,24.37,0.7164,0.7531,414.23
+GloVe_Twitter_100d,glove-twitter-100,100,24.37,0.707,0.7423,215.28
+GloVe_Wiki_100d,glove-wiki-gigaword-100,100,26.32,0.7042,0.7422,99.12
+GloVe_Twitter_25d,glove-twitter-25,25,24.37,0.7014,0.7418,78.56
+GloVe_Twitter_50d,glove-twitter-50,50,24.37,0.7004,0.7309,119.12
