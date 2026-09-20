@@ -1,11 +1,12 @@
 {
-  "Model": "Word TF-IDF + LogisticRegression",
-  "Feature Representation": "WORD_TFIDF",
-  "Val Accuracy": 0.7297574746567432,
-  "Val Macro F1": 0.7131770355622147,
-  "Test Accuracy": 0.7363456464379947,
-  "Test Macro F1": 0.717225089855244,
-  "Test Weighted F1": 0.7386569402201982,
-  "Test Macro Precision": 0.6982909281879197,
-  "Test Macro Recall": 0.7444233678618437
+    "Model": "Word TF-IDF + LogisticRegression",
+    "Feature Representation": "Word TF-IDF",
+    "Optimal Vectorizer": "min_df2_all",
+    "Optimal Hyperparameter": "C=5.0",
+    "Val Macro F1": 0.7239,
+    "Test Accuracy": 0.7433,
+    "Test Macro F1": 0.7241,
+    "Test Weighted F1": 0.7443,
+    "Test Macro Precision": 0.7112,
+    "Test Macro Recall": 0.7398
 }

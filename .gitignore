@@ -14,5 +14,7 @@
 
 # big models
 
+/hyperparam-test
+
 results/05_transformer_bert/saved_models
 results/06_transformer_roberta/saved_models

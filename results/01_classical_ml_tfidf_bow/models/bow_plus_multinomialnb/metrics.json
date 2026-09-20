@@ -1,11 +1,12 @@
 {
-  "Model": "BoW + MultinomialNB",
-  "Feature Representation": "BOW",
-  "Val Accuracy": 0.6725266264596432,
-  "Val Macro F1": 0.625914481334562,
-  "Test Accuracy": 0.6766490765171504,
-  "Test Macro F1": 0.6347728265946372,
-  "Test Weighted F1": 0.6728319174805295,
-  "Test Macro Precision": 0.6135322113007508,
-  "Test Macro Recall": 0.6730714262260205
+    "Model": "BoW + MultinomialNB",
+    "Feature Representation": "Bag-of-Words",
+    "Optimal Vectorizer": "20k_bigram",
+    "Optimal Hyperparameter": "alpha=1.0",
+    "Val Macro F1": 0.6302,
+    "Test Accuracy": 0.6793,
+    "Test Macro F1": 0.6309,
+    "Test Weighted F1": 0.6727,
+    "Test Macro Precision": 0.6245,
+    "Test Macro Recall": 0.6483
 }

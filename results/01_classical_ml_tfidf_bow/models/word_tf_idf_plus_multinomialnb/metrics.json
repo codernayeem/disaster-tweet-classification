@@ -1,11 +1,12 @@
 {
-  "Model": "Word TF-IDF + MultinomialNB",
-  "Feature Representation": "WORD_TFIDF",
-  "Val Accuracy": 0.6807391248556397,
-  "Val Macro F1": 0.6230107951395828,
-  "Test Accuracy": 0.6903693931398417,
-  "Test Macro F1": 0.6375184554857942,
-  "Test Weighted F1": 0.6831622865208665,
-  "Test Macro Precision": 0.6769486756367233,
-  "Test Macro Recall": 0.6161099630669012
+    "Model": "Word TF-IDF + MultinomialNB",
+    "Feature Representation": "Word TF-IDF",
+    "Optimal Vectorizer": "30k_trigram",
+    "Optimal Hyperparameter": "alpha=0.1",
+    "Val Macro F1": 0.626,
+    "Test Accuracy": 0.6883,
+    "Test Macro F1": 0.6401,
+    "Test Weighted F1": 0.6828,
+    "Test Macro Precision": 0.6636,
+    "Test Macro Recall": 0.6251
 }
