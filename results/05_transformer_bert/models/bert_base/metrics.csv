@@ -1,0 +1,2 @@
+Model,Optimal_LR,Optimal_Max_Len,Accuracy,Macro_F1,Weighted_F1,Precision,Recall,Latency_ms
+BERT_Base,3e-05,48,0.7792,0.7586,0.7753,0.7628,0.7567,0.727

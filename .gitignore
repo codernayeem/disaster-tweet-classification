@@ -12,9 +12,8 @@
 *.synctex.gz
 *.toc
 
-# big models
+# big model weights and artifacts
+results/05_transformer_bert/models/bert_base/best_model.pt
 
 /hyperparam-test
-
-results/05_transformer_bert/saved_models
-results/06_transformer_roberta/saved_models
+/scratch
