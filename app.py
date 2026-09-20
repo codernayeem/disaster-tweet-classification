@@ -873,6 +873,7 @@ with tab_leaderboard:
     st.caption("Comparison across Classical ML, Word2Vec, FastText, GloVe, and Transformers on HumAID.")
     
     suite_tabs = st.tabs([
+        "Master Leaderboard (All Models)",
         "Classical ML (01)",
         "Word2Vec Recurrent (02)",
         "FastText Recurrent (03)",
@@ -881,13 +882,80 @@ with tab_leaderboard:
         "RoBERTa Transformer (06)"
     ])
     
+    # ----------------------------------------------------------------------
+    # TAB 3.0: MASTER LEADERBOARD (ALL MODELS)
+    # ----------------------------------------------------------------------
+    with suite_tabs[0]:
+        st.markdown("#### Consolidated Master Leaderboard (All 6 Model Families)")
+        st.caption("Comprehensive benchmark across 16 model configurations on 15,160 held-out HumAID crisis tweets.")
+        
+        # Highlight metrics cards
+        col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+        with col_m1:
+            st.markdown("""
+            <div style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:8px; padding:10px 14px; margin-bottom:12px;">
+                <div style="font-size:0.75rem; color:#10b981; font-weight:700; text-transform:uppercase;">Overall Champion</div>
+                <div style="font-size:1.1rem; font-weight:800; color:#10b981;">RoBERTa Base</div>
+                <div style="font-size:0.8rem; color:#94a3b8;">Macro F1: <b>76.19%</b> | Acc: <b>78.31%</b></div>
+            </div>
+            """, unsafe_allow_html=True)
+        with col_m2:
+            st.markdown("""
+            <div style="background:rgba(6,182,212,0.12); border:1px solid rgba(6,182,212,0.3); border-radius:8px; padding:10px 14px; margin-bottom:12px;">
+                <div style="font-size:0.75rem; color:#06b6d4; font-weight:700; text-transform:uppercase;">Runner-Up</div>
+                <div style="font-size:1.1rem; font-weight:800; color:#06b6d4;">BERT Base</div>
+                <div style="font-size:0.8rem; color:#94a3b8;">Macro F1: <b>75.86%</b> | Acc: <b>77.92%</b></div>
+            </div>
+            """, unsafe_allow_html=True)
+        with col_m3:
+            st.markdown("""
+            <div style="background:rgba(139,92,246,0.12); border:1px solid rgba(139,92,246,0.3); border-radius:8px; padding:10px 14px; margin-bottom:12px;">
+                <div style="font-size:0.75rem; color:#8b5cf6; font-weight:700; text-transform:uppercase;">Top Recurrent</div>
+                <div style="font-size:1.1rem; font-weight:800; color:#8b5cf6;">FastText + BiLSTM</div>
+                <div style="font-size:0.8rem; color:#94a3b8;">Macro F1: <b>74.04%</b> | Acc: <b>76.27%</b></div>
+            </div>
+            """, unsafe_allow_html=True)
+        with col_m4:
+            st.markdown("""
+            <div style="background:rgba(100,116,139,0.12); border:1px solid rgba(100,116,139,0.3); border-radius:8px; padding:10px 14px; margin-bottom:12px;">
+                <div style="font-size:0.75rem; color:#94a3b8; font-weight:700; text-transform:uppercase;">Top Classical ML</div>
+                <div style="font-size:1.1rem; font-weight:800; color:#f8fafc;">TF-IDF + LogReg</div>
+                <div style="font-size:0.8rem; color:#94a3b8;">Macro F1: <b>72.41%</b> | Acc: <b>74.33%</b></div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+        master_plot = RESULTS_DIR / "master_models_comparison.png"
+        master_csv = RESULTS_DIR / "v2_master_metrics_summary.csv"
+        
+        c_mp, c_mt = st.columns([1.15, 0.85])
+        with c_mp:
+            if master_plot.exists():
+                st.image(str(master_plot), width='stretch')
+        with c_mt:
+            if master_csv.exists():
+                st.markdown("**Master Benchmark Table:**")
+                df_master = pd.read_csv(master_csv)
+                cols_show = ["Rank", "Model", "Family", "Test Macro F1", "Test Accuracy", "Parameters"]
+                cols_present = [c for c in cols_show if c in df_master.columns]
+                
+                # Format percentage strings for display
+                df_disp = df_master[cols_present].copy()
+                if "Test Macro F1" in df_disp.columns:
+                    df_disp["Test Macro F1"] = df_disp["Test Macro F1"].apply(lambda v: f"{v*100:.2f}%" if isinstance(v, (int, float)) and v <= 1.0 else str(v))
+                if "Test Accuracy" in df_disp.columns:
+                    df_disp["Test Accuracy"] = df_disp["Test Accuracy"].apply(lambda v: f"{v*100:.2f}%" if isinstance(v, (int, float)) and v <= 1.0 else str(v))
+                    
+                st.dataframe(df_disp, width='stretch', hide_index=True, height=len(df_disp)*38 + 42)
+                csv_m_data = df_master.to_csv(index=False).encode('utf-8')
+                st.download_button("Download Master Leaderboard CSV", csv_m_data, "master_models_benchmark.csv", "text/csv")
+    
     suite_config = [
-        ("01_classical_ml_tfidf_bow", "metrics_comparison.csv", "models_metrics_comparison.png", suite_tabs[0]),
-        ("02_word2vec_recurrent_models", "summary/recurrent_models_benchmark_summary.csv", "summary/recurrent_models_benchmark_plot.png", suite_tabs[1]),
-        ("03_fasttext_recurrent_models", "summary/recurrent_models_benchmark_summary.csv", "summary/recurrent_models_benchmark_plot.png", suite_tabs[2]),
-        ("04_glove_recurrent_models", "summary/recurrent_models_benchmark_summary.csv", "summary/recurrent_models_benchmark_plot.png", suite_tabs[3]),
-        ("05_transformer_bert", "models/bert_base/metrics.csv", "models/bert_base/training_curves.png", suite_tabs[4]),
-        ("06_transformer_roberta", "models/roberta_base/metrics.csv", "models/roberta_base/training_curves.png", suite_tabs[5])
+        ("01_classical_ml_tfidf_bow", "metrics_comparison.csv", "models_metrics_comparison.png", suite_tabs[1]),
+        ("02_word2vec_recurrent_models", "summary/recurrent_models_benchmark_summary.csv", "summary/recurrent_models_benchmark_plot.png", suite_tabs[2]),
+        ("03_fasttext_recurrent_models", "summary/recurrent_models_benchmark_summary.csv", "summary/recurrent_models_benchmark_plot.png", suite_tabs[3]),
+        ("04_glove_recurrent_models", "summary/recurrent_models_benchmark_summary.csv", "summary/recurrent_models_benchmark_plot.png", suite_tabs[4]),
+        ("05_transformer_bert", "models/bert_base/metrics.csv", "models/bert_base/training_curves.png", suite_tabs[5]),
+        ("06_transformer_roberta", "models/roberta_base/metrics.csv", "models/roberta_base/training_curves.png", suite_tabs[6])
     ]
     
     for s_dir, csv_rel, plot_rel, s_tab in suite_config:
@@ -921,7 +989,8 @@ with tab_leaderboard:
                                 with col1:
                                     if cm_p.exists():
                                         st.image(str(cm_p), width='stretch')
-                                with col2:
+                                chip2 = col2
+                                with chip2:
                                     if pc_p.exists():
                                         st.image(str(pc_p), width='stretch')
             else:
