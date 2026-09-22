@@ -1,5 +1,5 @@
 /scratch
-/__pycache__
+__pycache__
 
 
 # latex logs
@@ -18,3 +18,5 @@ results/06_transformer_roberta/models/roberta_base/best_model.pt
 
 /hyperparam-test
 /scratch
+/custom
+/idea*.md
